@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Input } from "@/components/ui/input";
 import {
   Accordion,
   AccordionContent,
@@ -14,9 +13,8 @@ import {
 import { 
   Shield, Phone, Smartphone, ShieldCheck, Users, CreditCard, 
   CheckCircle2, ArrowRight, X, Clock, 
-  Zap, Brain, Eye, PhoneOff, ShieldAlert, Activity, Lock, Play,
-  PhoneIncoming, PhoneMissed, Mic, Bell, Calendar,
-  Heart, Tv, FileText, Mail, Sparkles
+  Zap, Brain, Eye, PhoneOff, ShieldAlert, Activity, Lock,
+  PhoneIncoming, PhoneMissed, Mic
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -203,7 +201,6 @@ function DemoSettingsPanel() {
 
 export default function Landing() {
   const [scrolled, setScrolled] = useState(false);
-  const [emailNotify, setEmailNotify] = useState("");
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);

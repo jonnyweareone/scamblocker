@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Smartphone, CheckCircle2, ArrowRight } from "lucide-react";
+import { Smartphone, CheckCircle2, ArrowRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 // ScamBlocker Logo Component
