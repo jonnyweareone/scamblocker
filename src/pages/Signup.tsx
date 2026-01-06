@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { ScamBlockerPayment } from "@/components/consumer/ScamBlockerPayment";
+import { supabase } from "@/integrations/supabase/client";
 
 // Types
 type ProtectingType = "mum" | "dad" | "mum_and_dad" | "grandparent" | "partner" | "myself" | "other" | null;
@@ -222,6 +223,25 @@ export default function Signup() {
 
   const goNext = () => setStep(s => Math.min(s + 1, totalSteps));
   const goBack = () => setStep(s => Math.max(s - 1, 1));
+
+  // Track abandoned signups
+  const trackAbandonedSignup = async (stepReached: string) => {
+    if (!account.email) return;
+    try {
+      await supabase.functions.invoke("track-abandoned-signup", {
+        body: {
+          email: account.email,
+          name: account.name || null,
+          phone: account.phone || null,
+          protectionType: product || null,
+          stepReached,
+          shippingPostcode: address.postcode || null,
+        },
+      });
+    } catch (e) {
+      console.log("Tracking error:", e);
+    }
+  };
 
   const getSidebarContent = () => {
     switch (currentStepName) {
@@ -631,7 +651,7 @@ export default function Signup() {
       </div>
       <div className="flex justify-between pt-4">
         <Button variant="ghost" onClick={goBack}><ArrowLeft className="mr-2 h-4 w-4" /> Back</Button>
-        <Button onClick={goNext} disabled={!account.name || !account.email || !account.phone || account.password.length < 8} className="bg-gradient-to-r from-violet-600 to-fuchsia-600">Continue <ArrowRight className="ml-2 h-4 w-4" /></Button>
+        <Button onClick={() => { trackAbandonedSignup('account'); goNext(); }} disabled={!account.name || !account.email || !account.phone || account.password.length < 8} className="bg-gradient-to-r from-violet-600 to-fuchsia-600">Continue <ArrowRight className="ml-2 h-4 w-4" /></Button>
       </div>
     </div>
   );
@@ -717,7 +737,7 @@ export default function Signup() {
 
       {!showPayment ? (
         <>
-          <Button disabled={!termsAccepted} className="w-full h-14 text-lg bg-gradient-to-r from-violet-600 to-fuchsia-600" onClick={() => setShowPayment(true)}>
+          <Button disabled={!termsAccepted} className="w-full h-14 text-lg bg-gradient-to-r from-violet-600 to-fuchsia-600" onClick={() => { trackAbandonedSignup('payment_started'); setShowPayment(true); }}>
             🔒 Set Up Payment & Protect {displayName}
           </Button>
           <div className="flex justify-start pt-2">
