@@ -6,7 +6,7 @@ import { ConsumerPortalLayout } from "@/components/consumer/ConsumerPortalLayout
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Shield, Phone, Settings, Users, History, Loader2 } from "lucide-react";
+import { Shield, Phone, Settings, Users, History, Loader2, Gift } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 // Import dashboard components
@@ -14,11 +14,17 @@ import { CallHistory } from "@/components/consumer/CallHistory";
 import { WhitelistManager } from "@/components/consumer/WhitelistManager";
 import { SettingsPanel } from "@/components/consumer/SettingsPanel";
 import { EmergencyContacts } from "@/components/consumer/EmergencyContacts";
+import { ReferralDashboard } from "@/components/consumer/ReferralDashboard";
+import { GuidedSetup } from "@/components/consumer/GuidedSetup";
 
 interface ConsumerOrg {
   id: string;
   name: string;
   slug: string;
+}
+
+interface ConsumerSettings {
+  portal_login_count: number;
 }
 
 export default function Dashboard() {
@@ -27,6 +33,8 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [consumer, setConsumer] = useState<ConsumerOrg | null>(null);
   const [userName, setUserName] = useState<string>("");
+  const [showGuidedSetup, setShowGuidedSetup] = useState(false);
+  const [loginCount, setLoginCount] = useState(0);
 
   useEffect(() => {
     loadConsumerData();
@@ -63,12 +71,40 @@ export default function Dashboard() {
 
       const org = membership.orgs as unknown as ConsumerOrg;
       setConsumer(org);
+
+      // Check login count and increment
+      const { data: settings, error: settingsError } = await supabase
+        .from("consumer_settings")
+        .select("portal_login_count")
+        .eq("org_id", org.id)
+        .maybeSingle();
+
+      if (!settingsError && settings) {
+        const currentCount = settings.portal_login_count || 0;
+        setLoginCount(currentCount);
+
+        // Show guided setup on first login (count = 0)
+        if (currentCount === 0) {
+          setShowGuidedSetup(true);
+        }
+
+        // Increment login count
+        await supabase
+          .from("consumer_settings")
+          .update({ portal_login_count: currentCount + 1 })
+          .eq("org_id", org.id);
+      }
     } catch (error) {
       console.error("Error loading consumer data:", error);
       navigate("/login");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSetupComplete = async () => {
+    setShowGuidedSetup(false);
+    // Refresh the page or data if needed
   };
 
   if (loading) {
@@ -85,13 +121,22 @@ export default function Dashboard() {
     return null;
   }
 
+  // Show guided setup on first login
+  if (showGuidedSetup) {
+    return <GuidedSetup userName={userName} onComplete={handleSetupComplete} />;
+  }
+
   const tabs = [
     { value: "overview", label: "Overview", mobileLabel: "Home", icon: Shield },
     { value: "history", label: "Call History", mobileLabel: "Calls", icon: History },
     { value: "whitelist", label: "Trusted Contacts", mobileLabel: "Trusted", icon: Users },
     { value: "emergency", label: "Emergency Contacts", mobileLabel: "Emergency", icon: Phone },
+    { value: "referrals", label: "Refer & Earn", mobileLabel: "Refer", icon: Gift },
     { value: "settings", label: "Settings", mobileLabel: "Settings", icon: Settings },
   ];
+
+  // Determine default tab - show referrals on 2nd login
+  const defaultTab = loginCount === 1 ? "referrals" : "overview";
 
   return (
     <ConsumerPortalLayout userName={userName}>
@@ -113,16 +158,37 @@ export default function Dashboard() {
           </Badge>
         </div>
 
+        {/* Referral Banner - Show on 2nd login */}
+        {loginCount === 1 && (
+          <Card className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0">
+            <CardContent className="py-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Gift className="h-8 w-8" />
+                  <div>
+                    <p className="font-bold">Give a Month, Get a Month FREE!</p>
+                    <p className="text-sm text-purple-100">Share ScamBlocker with friends and earn free months</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Tabs */}
-        <Tabs defaultValue="overview" className="w-full">
+        <Tabs defaultValue={defaultTab} className="w-full">
           <TabsList className="w-full h-auto flex justify-start gap-1 overflow-x-auto scrollbar-hide bg-muted/50 p-1">
             {tabs.map((tab) => (
               <TabsTrigger
                 key={tab.value}
                 value={tab.value}
-                className="flex-shrink-0 text-xs sm:text-sm px-2 sm:px-3 py-1.5"
+                className={`flex-shrink-0 text-xs sm:text-sm px-2 sm:px-3 py-1.5 ${
+                  tab.value === "referrals" ? "text-purple-600" : ""
+                }`}
               >
-                <tab.icon className="h-4 w-4 mr-1 sm:mr-2" />
+                <tab.icon className={`h-4 w-4 mr-1 sm:mr-2 ${
+                  tab.value === "referrals" ? "text-purple-600" : ""
+                }`} />
                 {isMobile ? tab.mobileLabel : tab.label}
               </TabsTrigger>
             ))}
@@ -175,6 +241,34 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
             </div>
+
+            {/* Referral Card on Overview */}
+            <Card className="mt-4 border-purple-200 bg-purple-50/50">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Gift className="h-5 w-5 text-purple-600" />
+                  Refer Friends & Earn Free Months
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Share ScamBlocker with friends and family. They get their first month free, 
+                  and you get a free month when they pay their first bill!
+                </p>
+                <a 
+                  href="#" 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    document.querySelector('[value="referrals"]')?.dispatchEvent(
+                      new MouseEvent('click', { bubbles: true })
+                    );
+                  }}
+                  className="text-purple-600 font-medium text-sm hover:underline"
+                >
+                  Go to Refer & Earn →
+                </a>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="history" className="mt-6">
@@ -187,6 +281,10 @@ export default function Dashboard() {
 
           <TabsContent value="emergency" className="mt-6">
             <EmergencyContacts orgId={consumer.id} />
+          </TabsContent>
+
+          <TabsContent value="referrals" className="mt-6">
+            <ReferralDashboard orgId={consumer.id} />
           </TabsContent>
 
           <TabsContent value="settings" className="mt-6">
