@@ -6,8 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Mic, Phone, PhoneOff, Shield, AlertTriangle, 
   CheckCircle2, Loader2, Terminal, ArrowRight, 
-  Mail, Bell, ChevronDown, User, Building2, 
-  MessageSquare, TrendingDown, TrendingUp
+  Mail, Bell, ChevronDown, TrendingUp
 } from "lucide-react";
 
 interface LogEntry {

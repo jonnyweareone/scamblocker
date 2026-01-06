@@ -13,9 +13,9 @@ import {
 } from "@/components/ui/accordion";
 import { 
   Shield, Phone, Smartphone, ShieldCheck, Users, CreditCard, 
-  CheckCircle2, ArrowRight, AlertTriangle, X, Clock, 
+  CheckCircle2, ArrowRight, X, Clock, 
   Zap, Brain, Eye, PhoneOff, ShieldAlert, Activity, Lock, Play,
-  PhoneIncoming, PhoneMissed, Mic, Bell, Calendar, Building2,
+  PhoneIncoming, PhoneMissed, Mic, Calendar,
   Heart, Tv, FileText, Mail, Sparkles
 } from "lucide-react";
 import { RealtimeVoiceDemo } from "@/components/demo/RealtimeVoiceDemo";
