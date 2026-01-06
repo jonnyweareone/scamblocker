@@ -23,9 +23,7 @@ interface ConsumerOrg {
   slug: string;
 }
 
-interface ConsumerSettings {
-  portal_login_count: number;
-}
+
 
 export default function Dashboard() {
   const navigate = useNavigate();
