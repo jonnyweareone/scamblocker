@@ -649,6 +649,7 @@ export default function Signup() {
     email: account.email,
     name: account.name,
     phone: account.phone,
+    password: account.password,
     protectionType: product as "landline" | "mobile" | "both",
     shippingName: account.name,
     shippingAddress1: shipToDifferent ? shippingAddress.line1 : address.line1,

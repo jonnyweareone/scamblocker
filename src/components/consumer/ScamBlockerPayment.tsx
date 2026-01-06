@@ -39,6 +39,7 @@ interface OrderData {
   email: string;
   name: string;
   phone: string;
+  password: string;
   protectionType: "landline" | "mobile" | "both";
   pricingCode?: string;
   shippingName?: string;
