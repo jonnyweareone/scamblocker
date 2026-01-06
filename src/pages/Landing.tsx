@@ -862,14 +862,14 @@ export default function ScamBlockerLanding() {
             
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
-                { flag: "🇺🇸", name: "USA & Canada", price: "£5", mins: "500 mins" },
-                { flag: "🇮🇳", name: "India", price: "£5", mins: "300 mins" },
-                { flag: "🇨🇳", name: "China & Hong Kong", price: "£5", mins: "300 mins" },
+                { flag: "🇺🇸", name: "North America", price: "£5", mins: "300 mins" },
+                { flag: "🇮🇳", name: "India", price: "£5", mins: "150 mins" },
+                { flag: "🇨🇳", name: "China & HK", price: "£5", mins: "100 mins" },
+                { flag: "🇦🇺", name: "Australia/NZ", price: "£5", mins: "100 mins" },
                 { flag: "🇪🇺", name: "Europe", price: "£7", mins: "200 mins" },
-                { flag: "🇵🇰", name: "South Asia", price: "£7", mins: "200 mins" },
-                { flag: "🇯🇲", name: "Caribbean", price: "£10", mins: "100 mins" },
-                { flag: "🇳🇬", name: "West Africa", price: "£10", mins: "100 mins" },
-                { flag: "🌍", name: "Rest of World", price: "£15", mins: "100 mins" },
+                { flag: "🇵🇰", name: "South Asia", price: "£10", mins: "60 mins" },
+                { flag: "🇯🇲", name: "Caribbean", price: "£15", mins: "50 mins" },
+                { flag: "🇳🇬", name: "Africa", price: "£15", mins: "50 mins" },
               ].map((bundle) => (
                 <div key={bundle.name} className="bg-white border border-slate-200 rounded-lg p-4 text-center hover:border-violet-300 transition-colors">
                   <span className="text-2xl">{bundle.flag}</span>
