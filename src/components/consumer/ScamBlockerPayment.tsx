@@ -119,6 +119,7 @@ function PaymentForm({
           paymentMethodId: setupIntent.payment_method,
           protectionType: orderData.protectionType,
           orderData,
+          setupFeeWaived: discountApplied,
         },
       });
 
