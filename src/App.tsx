@@ -34,7 +34,7 @@ function App() {
           <Routes>
             {/* Marketing / Public pages */}
             <Route path="/" element={<Landing />} />
-            <Route path="/join" element={<Signup />} />
+            <Route path="/signup" element={<Signup />} />
             <Route path="/mobile" element={<Mobile />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
