@@ -7,7 +7,8 @@ import {
   useElements,
 } from "@stripe/react-stripe-js";
 import { Button } from "@/components/ui/button";
-import { Loader2, Lock, CreditCard, ShieldCheck, Building2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Loader2, Lock, CreditCard, ShieldCheck, Building2, Tag, Check, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -51,6 +52,7 @@ interface OrderData {
   portNumber?: string;
   portProvider?: string;
   mobileForwardNumber?: string;
+  discountCode?: string;
 }
 
 interface Props {
@@ -66,6 +68,8 @@ function PaymentForm({
   orderData,
   monthlyRate,
   setupFeeAmount,
+  discountApplied,
+  originalSetupFee,
 }: { 
   onSuccess: () => void;
   onError: (error: string) => void;
@@ -73,6 +77,8 @@ function PaymentForm({
   orderData: OrderData;
   monthlyRate: number;
   setupFeeAmount: number;
+  discountApplied: boolean;
+  originalSetupFee: number;
 }) {
   const stripe = useStripe();
   const elements = useElements();
@@ -151,10 +157,23 @@ function PaymentForm({
           <span className="text-slate-600">Monthly subscription</span>
           <span className="font-medium">£{monthlyRate.toFixed(2)}/mo</span>
         </div>
-        {hasSetupFee && (
+        {originalSetupFee > 0 && (
           <div className="flex justify-between">
             <span className="text-slate-600">Setup fee (adapter + delivery)</span>
-            <span className="font-medium">£{setupFeeAmount.toFixed(2)}</span>
+            {discountApplied ? (
+              <span className="font-medium">
+                <span className="line-through text-slate-400 mr-2">£{originalSetupFee.toFixed(2)}</span>
+                <span className="text-green-600">FREE</span>
+              </span>
+            ) : (
+              <span className="font-medium">£{setupFeeAmount.toFixed(2)}</span>
+            )}
+          </div>
+        )}
+        {discountApplied && (
+          <div className="flex items-center gap-2 text-green-600 text-xs pt-1">
+            <Check className="h-3 w-3" />
+            <span>Discount code applied - Setup fee waived!</span>
           </div>
         )}
         <div className="border-t pt-2 mt-2 flex justify-between font-semibold">
@@ -184,40 +203,66 @@ function PaymentForm({
 }
 
 export function ScamBlockerPayment({ orderData, onSuccess, onError }: Props) {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [initialized, setInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [subscriptionSetupSecret, setSubscriptionSetupSecret] = useState<string | null>(null);
   const [customerId, setCustomerId] = useState<string | null>(null);
   const [setupFeeAmount, setSetupFeeAmount] = useState(0);
   const [monthlyRate, setMonthlyRate] = useState(0);
+  const [discountCode, setDiscountCode] = useState("");
+  const [discountApplied, setDiscountApplied] = useState(false);
+  const [originalSetupFee, setOriginalSetupFee] = useState(0);
 
-  useEffect(() => {
-    const initializePayment = async () => {
-      try {
-        const { data, error: fnError } = await supabase.functions.invoke("create-scamblocker-order", {
-          body: orderData,
-        });
+  const initializePayment = async (code?: string) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const { data, error: fnError } = await supabase.functions.invoke("create-scamblocker-order", {
+        body: { ...orderData, discountCode: code || discountCode || undefined },
+      });
 
-        if (fnError) throw fnError;
-        if (!data) throw new Error("No response from payment initialization");
+      if (fnError) throw fnError;
+      if (!data) throw new Error("No response from payment initialization");
 
-        setSubscriptionSetupSecret(data.subscriptionSetupClientSecret);
-        setCustomerId(data.customerId);
-        setSetupFeeAmount(data.setupFeeAmount || 0);
-        setMonthlyRate(data.monthlyRate || 0);
-      } catch (err: any) {
-        console.error("Payment init error:", err);
-        setError(err.message || "Failed to initialize payment");
-        onError(err.message || "Failed to initialize payment");
-      } finally {
-        setLoading(false);
+      setSubscriptionSetupSecret(data.subscriptionSetupClientSecret);
+      setCustomerId(data.customerId);
+      setSetupFeeAmount(data.setupFeeAmount || 0);
+      setMonthlyRate(data.monthlyRate || 0);
+      setDiscountApplied(data.discountApplied || false);
+      setOriginalSetupFee(data.originalSetupFee || data.setupFeeAmount || 0);
+      setInitialized(true);
+      
+      if (data.discountApplied) {
+        toast.success("Discount code applied! Setup fee waived.");
       }
-    };
+    } catch (err: any) {
+      console.error("Payment init error:", err);
+      setError(err.message || "Failed to initialize payment");
+      onError(err.message || "Failed to initialize payment");
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  const handleApplyDiscount = async () => {
+    if (!discountCode.trim()) return;
+    await initializePayment(discountCode.trim());
+  };
+
+  const handleRemoveDiscount = async () => {
+    setDiscountCode("");
+    setDiscountApplied(false);
+    await initializePayment("");
+  };
+
+  // Initialize without discount code first
+  useEffect(() => {
     initializePayment();
   }, []);
 
-  if (loading) {
+  if (loading && !initialized) {
     return (
       <div className="flex flex-col items-center justify-center py-12 space-y-4">
         <Loader2 className="h-8 w-8 animate-spin text-violet-600" />
@@ -226,11 +271,22 @@ export function ScamBlockerPayment({ orderData, onSuccess, onError }: Props) {
     );
   }
 
-  if (error || !subscriptionSetupSecret || !customerId) {
+  if (error && !initialized) {
     return (
       <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-center">
-        <p className="text-red-700">{error || "Failed to initialize payment"}</p>
-        <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
+        <p className="text-red-700">{error}</p>
+        <Button variant="outline" className="mt-4" onClick={() => initializePayment()}>
+          Try Again
+        </Button>
+      </div>
+    );
+  }
+
+  if (!subscriptionSetupSecret || !customerId) {
+    return (
+      <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-center">
+        <p className="text-red-700">Failed to initialize payment</p>
+        <Button variant="outline" className="mt-4" onClick={() => initializePayment()}>
           Try Again
         </Button>
       </div>
@@ -248,6 +304,50 @@ export function ScamBlockerPayment({ orderData, onSuccess, onError }: Props) {
         </p>
       </div>
 
+      {/* Discount Code Section */}
+      <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+        <div className="flex items-center gap-2 mb-2">
+          <Tag className="h-4 w-4 text-amber-600" />
+          <span className="font-medium text-amber-800 text-sm">Have a discount code?</span>
+        </div>
+        {discountApplied ? (
+          <div className="flex items-center justify-between bg-green-100 border border-green-300 rounded-lg px-3 py-2">
+            <div className="flex items-center gap-2 text-green-700">
+              <Check className="h-4 w-4" />
+              <span className="font-medium">{discountCode.toUpperCase()}</span>
+              <span className="text-sm">- Setup fee waived!</span>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleRemoveDiscount}
+              disabled={loading}
+              className="h-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        ) : (
+          <div className="flex gap-2">
+            <Input
+              placeholder="Enter code"
+              value={discountCode}
+              onChange={(e) => setDiscountCode(e.target.value.toUpperCase())}
+              className="flex-1 uppercase"
+              disabled={loading}
+            />
+            <Button
+              variant="outline"
+              onClick={handleApplyDiscount}
+              disabled={loading || !discountCode.trim()}
+              className="shrink-0"
+            >
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Apply"}
+            </Button>
+          </div>
+        )}
+      </div>
+
       <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
         <div className="flex items-start gap-2">
           <Building2 className="h-5 w-5 text-blue-600 mt-0.5 shrink-0" />
@@ -260,14 +360,17 @@ export function ScamBlockerPayment({ orderData, onSuccess, onError }: Props) {
       <Elements
         stripe={stripePromise}
         options={{ clientSecret: subscriptionSetupSecret, appearance: stripeAppearance }}
+        key={subscriptionSetupSecret} // Force re-render when secret changes
       >
         <PaymentForm 
           onSuccess={onSuccess} 
           onError={onError}
           customerId={customerId}
-          orderData={orderData}
+          orderData={{ ...orderData, discountCode: discountApplied ? discountCode : undefined }}
           monthlyRate={monthlyRate}
           setupFeeAmount={setupFeeAmount}
+          discountApplied={discountApplied}
+          originalSetupFee={originalSetupFee}
         />
       </Elements>
 
