@@ -17,7 +17,6 @@ import { EmergencyContacts } from "@/components/consumer/EmergencyContacts";
 import { ReferralDashboard } from "@/components/consumer/ReferralDashboard";
 import { GuidedSetup } from "@/components/consumer/GuidedSetup";
 import { MobileProtection } from "@/components/consumer/MobileProtection";
-import { MobileProtection } from "@/components/consumer/MobileProtection";
 
 interface ConsumerOrg {
   id: string;
