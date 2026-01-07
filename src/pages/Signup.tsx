@@ -488,8 +488,8 @@ export default function Signup() {
       <div className="grid gap-4">
         {[
           { id: "landline", emoji: "📞", label: "Landline", desc: "Home phone", price: "£14.99/mo" },
-          { id: "mobile", emoji: "📱", label: "Mobile", desc: "Smartphone", price: "£7.99/mo" },
-          { id: "both", emoji: "📞📱", label: "Both", desc: "Complete coverage", price: "£19.99/mo", badge: "Save £2.99" },
+          { id: "mobile", emoji: "📱", label: "Mobile", desc: "Smartphone", price: "£9.99/mo" },
+          { id: "both", emoji: "📞📱", label: "Both", desc: "Complete coverage", price: "£21.99/mo", badge: "Save £2.99" },
         ].map((option) => (
           <button key={option.id} onClick={() => { setProduct(option.id as ProductType); goNext(); }} className="p-6 rounded-xl border-2 text-left transition-all hover:border-violet-300 hover:shadow-lg border-slate-200 bg-white">
             <div className="flex items-start gap-4">
@@ -658,8 +658,8 @@ export default function Signup() {
 
   const getPrice = () => {
     if (product === "landline") return { monthly: 14.99, setup: 29, todayTotal: 29 };
-    if (product === "mobile") return { monthly: 7.99, setup: 0, todayTotal: 0 };
-    if (product === "both") return { monthly: 19.99, setup: 29, todayTotal: 29 };
+    if (product === "mobile") return { monthly: 9.99, setup: 0, todayTotal: 0 };
+    if (product === "both") return { monthly: 21.99, setup: 29, todayTotal: 29 };
     return { monthly: 0, setup: 0, todayTotal: 0 };
   };
 

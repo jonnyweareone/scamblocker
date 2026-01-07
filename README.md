@@ -32,7 +32,7 @@ ScamBlocker uses real-time AI to intercept and block scam calls **before** they 
 | Plan | Price | Features |
 |------|-------|----------|
 | **ScamBlocker Home** | £14.99/mo* | Landline protection, GA11 adapter included, 2000 UK minutes |
-| **ScamBlocker Mobile** | £7.99/mo | Mobile protection, no setup fee, 30-day rolling |
+| **ScamBlocker Mobile** | £9.99/mo | Mobile protection, no setup fee, 30-day rolling |
 
 *£14.99 for first 6 months, then £24.99/mo. 12-month minimum term.
 
@@ -114,4 +114,4 @@ Automatically deployed to Vercel on push to `main`.
 
 ---
 
-Built with ❤️ by [Guardian Network Solutions](https://guardiannetwork.co.uk) | Powered by [SONIQ](https://soniq.io)
+Built with ❤️ by [We Are One 1 Limited](https://weareone1.co.uk) | Powered by [SONIQ](https://soniq.io)

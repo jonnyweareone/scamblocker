@@ -6,7 +6,7 @@ import { ConsumerPortalLayout } from "@/components/consumer/ConsumerPortalLayout
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Shield, Phone, Settings, Users, History, Loader2, Gift } from "lucide-react";
+import { Shield, Phone, Settings, Users, History, Loader2, Gift, Smartphone } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 // Import dashboard components
@@ -16,6 +16,8 @@ import { SettingsPanel } from "@/components/consumer/SettingsPanel";
 import { EmergencyContacts } from "@/components/consumer/EmergencyContacts";
 import { ReferralDashboard } from "@/components/consumer/ReferralDashboard";
 import { GuidedSetup } from "@/components/consumer/GuidedSetup";
+import { MobileProtection } from "@/components/consumer/MobileProtection";
+import { MobileProtection } from "@/components/consumer/MobileProtection";
 
 interface ConsumerOrg {
   id: string;
@@ -126,6 +128,7 @@ export default function Dashboard() {
 
   const tabs = [
     { value: "overview", label: "Overview", mobileLabel: "Home", icon: Shield },
+    { value: "mobile", label: "Mobile Protection", mobileLabel: "Mobile", icon: Smartphone },
     { value: "history", label: "Call History", mobileLabel: "Calls", icon: History },
     { value: "whitelist", label: "Trusted Contacts", mobileLabel: "Trusted", icon: Users },
     { value: "emergency", label: "Emergency Contacts", mobileLabel: "Emergency", icon: Phone },
@@ -271,6 +274,10 @@ export default function Dashboard() {
 
           <TabsContent value="history" className="mt-6">
             <CallHistory orgId={consumer.id} />
+          </TabsContent>
+
+          <TabsContent value="mobile" className="mt-6">
+            <MobileProtection orgId={consumer.id} />
           </TabsContent>
 
           <TabsContent value="whitelist" className="mt-6">

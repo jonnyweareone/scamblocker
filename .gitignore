@@ -23,6 +23,12 @@ dist-ssr
 .env
 .env.local
 .env.*.local
+*.env
+scamblocker.env
+
+# Scripts
+*.sh
+update-stripe-*.sh
 
 # Logs
 logs
@@ -32,3 +38,4 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+.env.production

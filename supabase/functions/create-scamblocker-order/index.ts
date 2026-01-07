@@ -21,12 +21,12 @@ const PRICING = {
   mobile: {
     monthlyPriceId: Deno.env.get("STRIPE_PRICE_MOBILE_MONTHLY")!,
     setupFee: 0,
-    monthlyAmount: 799, // £7.99
+    monthlyAmount: 999, // £9.99
   },
   both: {
     monthlyPriceId: Deno.env.get("STRIPE_PRICE_BOTH_MONTHLY")!,
     setupFee: 2900, // £29 in pence
-    monthlyAmount: 1999, // £19.99
+    monthlyAmount: 2199, // £21.99
   },
 };
 

@@ -82,7 +82,7 @@ export default function ScamBlockerTerms() {
 
             <h3 className="text-lg font-semibold text-slate-800 mt-6 mb-3">3.2 ScamBlocker Mobile</h3>
             <ul className="list-disc pl-6 text-slate-600 space-y-2 mb-4">
-              <li><strong>Price:</strong> £7.99 per month</li>
+              <li><strong>Price:</strong> £9.99 per month</li>
               <li><strong>Setup fee:</strong> None</li>
               <li><strong>Minimum term:</strong> 30-day rolling contract</li>
             </ul>

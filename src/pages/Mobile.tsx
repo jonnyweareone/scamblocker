@@ -18,11 +18,11 @@ export default function ScamBlockerMobile() {
     <div className="min-h-screen bg-white">
       <Helmet>
         <title>ScamBlocker Mobile - AI Scam Protection for Your Smartphone | UK</title>
-        <meta name="description" content="Add AI-powered scam protection to your mobile without changing provider. Get a new protected number, keep your real number private. £7.99/month, no setup fee, cancel anytime." />
+        <meta name="description" content="Add AI-powered scam protection to your mobile without changing provider. Get a new protected number, keep your real number private. £9.99/month, no setup fee, cancel anytime." />
         <meta name="keywords" content="mobile scam blocker, smartphone scam protection, eSIM scam blocker, AI call screening mobile, phone scam protection UK" />
         <link rel="canonical" href="https://scamblocker.co.uk/mobile" />
         <meta property="og:title" content="ScamBlocker Mobile - Protect Your Smartphone from Scams" />
-        <meta property="og:description" content="AI-powered scam protection for mobiles. Keep your provider, add protection. £7.99/month." />
+        <meta property="og:description" content="AI-powered scam protection for mobiles. Keep your provider, add protection. £9.99/month." />
       </Helmet>
 
       {/* Header */}
@@ -147,7 +147,7 @@ export default function ScamBlockerMobile() {
                 <Smartphone className="h-12 w-12 text-cyan-600 mx-auto mb-4" />
                 <h3 className="text-2xl font-bold mb-2">ScamBlocker Mobile</h3>
                 <div className="mb-6">
-                  <span className="text-4xl font-bold">£7.99</span>
+                  <span className="text-4xl font-bold">£9.99</span>
                   <span className="text-slate-500">/month</span>
                 </div>
                 <ul className="text-left space-y-3 mb-6">
@@ -252,7 +252,7 @@ export default function ScamBlockerMobile() {
       <footer className="py-8 bg-slate-900 text-slate-400">
         <div className="container px-4 md:px-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-sm">© 2024 ScamBlocker. Part of Guardian Network Solutions Ltd.</p>
+            <p className="text-sm">© 2024 ScamBlocker. Part of We Are One 1 Limited.</p>
             <div className="flex gap-6 text-sm">
               <Link to="/terms" className="hover:text-white">Terms</Link>
               <Link to="/privacy" className="hover:text-white">Privacy</Link>

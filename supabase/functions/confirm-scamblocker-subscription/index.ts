@@ -26,11 +26,11 @@ const PRICING = {
   },
   mobile: {
     monthlyPriceId: Deno.env.get("STRIPE_PRICE_MOBILE_MONTHLY")!,
-    monthlyAmount: 799,
+    monthlyAmount: 999,
   },
   both: {
     monthlyPriceId: Deno.env.get("STRIPE_PRICE_BOTH_MONTHLY")!,
-    monthlyAmount: 1999,
+    monthlyAmount: 2199,
   },
 };
 
@@ -106,8 +106,8 @@ function generateWelcomeEmail(name: string, protectionType: string) {
       <div style="border-top: 1px solid #e2e8f0; padding-top: 20px; margin-top: 30px; font-size: 14px; color: #64748b;">
         <p>Need help? Reply to this email or call us on <strong>0330 088 1299</strong></p>
         <p style="margin-bottom: 0;">
-          ScamBlocker is a trading name of Guardian Network Solutions Ltd<br>
-          Registered in England & Wales: 15460029
+          ScamBlocker is a trading name of We Are One 1 Limited<br>
+          Registered in England & Wales: 15052885
         </p>
       </div>
     </body>

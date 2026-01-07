@@ -818,7 +818,7 @@ export default function ScamBlockerLanding() {
               </CardHeader>
               <CardContent className="space-y-6">
                 <div>
-                  <span className="text-4xl font-bold">£7.99</span>
+                  <span className="text-4xl font-bold">£9.99</span>
                   <span className="text-slate-500">/month</span>
                   <p className="text-sm text-slate-500">No setup fee</p>
                 </div>
@@ -1027,7 +1027,7 @@ export default function ScamBlockerLanding() {
             <div>
               <ScamBlockerLogo className="mb-4" />
               <p className="text-sm">Protecting UK families from phone scams with real-time AI.</p>
-              <p className="text-xs mt-2 text-slate-500">A SONIQ product by Guardian Network Solutions</p>
+              <p className="text-xs mt-2 text-slate-500">A SONIQ product by We Are One 1 Limited</p>
             </div>
             <div>
               <h4 className="font-semibold text-white mb-4">Product</h4>
