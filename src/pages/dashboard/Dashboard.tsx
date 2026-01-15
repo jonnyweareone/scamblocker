@@ -61,10 +61,18 @@ export default function Dashboard() {
         .eq("orgs.type", "consumer")
         .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching consumer org:", error);
+        // Don't navigate away, show error in UI instead
+        setLoading(false);
+        return;
+      }
 
       if (!membership) {
-        navigate("/login");
+        console.warn("No consumer org found for user. User may need to complete ScamBlocker signup.");
+        // Don't navigate to login if user is authenticated but has no consumer org
+        // They may have signed up via SoniqMail and need to complete ScamBlocker setup
+        setLoading(false);
         return;
       }
 
@@ -95,7 +103,7 @@ export default function Dashboard() {
       }
     } catch (error) {
       console.error("Error loading consumer data:", error);
-      navigate("/login");
+      // Don't redirect on error, let user see what happened
     } finally {
       setLoading(false);
     }
@@ -117,7 +125,31 @@ export default function Dashboard() {
   }
 
   if (!consumer) {
-    return null;
+    return (
+      <ConsumerPortalLayout userName={userName}>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Card className="max-w-md">
+            <CardHeader>
+              <CardTitle>Welcome to ScamBlocker</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-muted-foreground">
+                You're signed in, but you haven't set up your ScamBlocker protection yet.
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Complete the signup process to start protecting your phone from scammers.
+              </p>
+              <Button 
+                onClick={() => navigate("/signup")}
+                className="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600"
+              >
+                Complete ScamBlocker Setup
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </ConsumerPortalLayout>
+    );
   }
 
   // Show guided setup on first login

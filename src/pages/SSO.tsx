@@ -50,36 +50,26 @@ export default function SSO() {
           throw new Error(errorData.error || 'Token exchange failed');
         }
 
-        const { access_token, refresh_token, user } = await response.json();
+        const { access_token, refresh_token } = await response.json();
 
         setStatus("Establishing your session...");
-        
-        console.log('Received tokens, setting session...');
 
-        // CRITICAL: Use the correct method for setting session
-        // setSession expects both tokens, but if refresh_token is invalid, it will fail
-        const { data, error: sessionError } = await supabase.auth.setSession({
+        // Try setting session with both tokens
+        const { error: sessionError } = await supabase.auth.setSession({
           access_token,
-          refresh_token,
+          refresh_token: refresh_token || access_token, // Fallback to access_token if no refresh
         });
 
         if (sessionError) {
-          console.error('setSession error:', sessionError);
-          // If the error is about invalid refresh token, we can still try to proceed
-          if (sessionError.message?.includes('refresh') || sessionError.message?.includes('Refresh')) {
-            console.warn('Refresh token issue, but proceeding with access token');
-          } else {
-            throw new Error(sessionError.message);
-          }
+          console.error('Session error:', sessionError);
+          throw new Error(sessionError.message);
         }
 
-        // Verify we have a session
+        // Verify session was established
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) {
           throw new Error('Failed to establish session');
         }
-
-        console.log('Session established successfully');
 
         // Clear the URL
         window.history.replaceState({}, document.title, '/sso');

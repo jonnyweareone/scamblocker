@@ -27,6 +27,8 @@ serve(async (req) => {
       }
     })
 
+    console.log('Looking up SSO code:', code.substring(0, 10) + '...')
+
     // Look up the code and get tokens
     const { data: ssoToken, error: lookupError } = await supabaseAdmin
       .from('sso_tokens')
@@ -39,6 +41,8 @@ serve(async (req) => {
       console.error('Token lookup error:', lookupError)
       throw new Error('Invalid or expired code')
     }
+
+    console.log('Found token for user:', ssoToken.user_id, 'Has refresh:', !!ssoToken.refresh_token)
 
     if (new Date(ssoToken.expires_at) < new Date()) {
       throw new Error('Code has expired')
@@ -58,14 +62,18 @@ serve(async (req) => {
       throw new Error('Invalid token')
     }
 
-    console.log('SSO exchange successful for:', user.email)
+    console.log('Token verified for:', user.email)
 
-    // SIMPLE SOLUTION: Just return the tokens as-is
-    // Since both apps share the same Supabase instance, these tokens work everywhere!
+    // Return the tokens
+    // If we don't have a refresh_token, use access_token as fallback
+    const finalRefreshToken = ssoToken.refresh_token || ssoToken.access_token
+
+    console.log('Returning tokens, refresh_token type:', typeof finalRefreshToken, 'length:', finalRefreshToken?.length)
+
     return new Response(
       JSON.stringify({
         access_token: ssoToken.access_token,
-        refresh_token: ssoToken.refresh_token || ssoToken.access_token,
+        refresh_token: finalRefreshToken,
         user: {
           id: user.id,
           email: user.email,

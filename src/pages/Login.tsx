@@ -30,6 +30,7 @@ export default function Login() {
     // Check if already logged in
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
+        // User is authenticated, let dashboard handle whether they have consumer org
         navigate("/dashboard");
       }
       setCheckingSession(false);
