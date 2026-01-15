@@ -18,7 +18,7 @@ function ScamBlockerLogo() {
 
 /**
  * SSO (Single Sign-On) page
- * Accepts a JWT token from SONIQ Mail and logs the user in automatically
+ * Accepts a JWT token from SONIQ Mail and exchanges it securely for a session
  */
 export default function SSO() {
   const navigate = useNavigate();
@@ -29,28 +29,48 @@ export default function SSO() {
   useEffect(() => {
     async function authenticateWithToken() {
       try {
-        // Get token from URL parameter
-        const token = searchParams.get("token");
+        // Get one-time code from URL parameter
+        const code = searchParams.get("code");
         
-        if (!token) {
-          throw new Error("No authentication token provided");
+        if (!code) {
+          throw new Error("No authentication code provided");
         }
 
         setStatus("Verifying your credentials...");
 
-        // Set the session using the provided token
-        const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
-          access_token: token,
-          refresh_token: token, // In this case, we use the same token
+        // Exchange the code server-side for a proper session
+        const response = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/sso-exchange`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ code }),
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Token exchange failed');
+        }
+
+        const { access_token, refresh_token } = await response.json();
+
+        setStatus("Establishing your session...");
+
+        // Set the session with the new tokens
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token,
+          refresh_token,
         });
 
         if (sessionError) {
           throw new Error(sessionError.message);
         }
 
-        if (!sessionData.session) {
-          throw new Error("Failed to establish session");
-        }
+        // Clear the URL (remove token from history)
+        window.history.replaceState({}, document.title, '/sso');
 
         // Session established successfully
         setStatus("Success! Redirecting to dashboard...");
@@ -65,6 +85,9 @@ export default function SSO() {
         console.error("SSO authentication error:", err);
         setError(err.message || "Authentication failed");
         toast.error("Failed to authenticate");
+        
+        // Clear the URL
+        window.history.replaceState({}, document.title, '/sso');
         
         // Redirect to login after delay
         setTimeout(() => {
