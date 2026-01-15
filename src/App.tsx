@@ -15,6 +15,7 @@ import Login from './pages/Login'
 
 // Dashboard pages
 import Dashboard from './pages/dashboard/Dashboard'
+import SSO from './pages/SSO'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -41,6 +42,7 @@ function App() {
             <Route path="/complaints" element={<Complaints />} />
             <Route path="/rates" element={<Rates />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/sso" element={<SSO />} />
             
             {/* Protected Dashboard */}
             <Route path="/dashboard" element={<Dashboard />} />
