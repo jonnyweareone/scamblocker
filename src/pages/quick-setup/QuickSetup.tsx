@@ -43,6 +43,10 @@ export default function QuickSetup() {
     shippingCity: "",
     shippingPostcode: "",
   });
+  
+  const [availableNumbers, setAvailableNumbers] = useState<any[]>([]);
+  const [selectedNumberId, setSelectedNumberId] = useState<string>("");
+  const [loadingNumbers, setLoadingNumbers] = useState(false);
 
   useEffect(() => {
     loadUserData();
@@ -71,6 +75,33 @@ export default function QuickSetup() {
       navigate("/dashboard");
     }
   };
+  
+  const loadAvailableNumbers = async () => {
+    setLoadingNumbers(true);
+    try {
+      const response = await fetch("/api/available-numbers");
+      const result = await response.json();
+      
+      if (result.error) {
+        toast.error("Failed to load available numbers");
+        return;
+      }
+      
+      setAvailableNumbers(result.numbers || []);
+    } catch (error) {
+      console.error("Error loading numbers:", error);
+      toast.error("Failed to load available numbers");
+    } finally {
+      setLoadingNumbers(false);
+    }
+  };
+  
+  // Load numbers when user selects "new number"
+  useEffect(() => {
+    if (data.numberChoice === "new" && availableNumbers.length === 0) {
+      loadAvailableNumbers();
+    }
+  }, [data.numberChoice]);
 
   const handleComplete = async () => {
     setLoading(true);
@@ -89,6 +120,7 @@ export default function QuickSetup() {
         p_shipping_address_line1: data.shippingAddress1 || null,
         p_shipping_city: data.shippingCity || null,
         p_shipping_postcode: data.shippingPostcode || null,
+        p_selected_number_id: selectedNumberId || null,
       });
 
       if (error) throw error;
@@ -224,6 +256,41 @@ export default function QuickSetup() {
                 <Label htmlFor="port">Keep my existing number (port it)</Label>
               </div>
             </RadioGroup>
+
+            {data.numberChoice === "new" && (
+              <div className="pl-6 space-y-3">
+                {loadingNumbers ? (
+                  <div className="text-sm text-muted-foreground">Loading available numbers...</div>
+                ) : availableNumbers.length > 0 ? (
+                  <div>
+                    <Label>Choose your new number</Label>
+                    <RadioGroup 
+                      value={selectedNumberId} 
+                      onValueChange={setSelectedNumberId}
+                      className="mt-2 space-y-2 max-h-64 overflow-y-auto"
+                    >
+                      {availableNumbers.map((num) => (
+                        <div key={num.id} className="flex items-center space-x-2">
+                          <RadioGroupItem value={num.id} id={num.id} />
+                          <Label htmlFor={num.id} className="flex-1 cursor-pointer">
+                            <span className="font-mono">{num.e164}</span>
+                            {num.area_name && (
+                              <span className="ml-2 text-sm text-muted-foreground">
+                                ({num.area_name})
+                              </span>
+                            )}
+                          </Label>
+                        </div>
+                      ))}
+                    </RadioGroup>
+                  </div>
+                ) : (
+                  <div className="text-sm text-muted-foreground">
+                    No numbers available. Please contact support.
+                  </div>
+                )}
+              </div>
+            )}
 
             {data.numberChoice === "port" && (
               <div className="grid gap-4 pl-6">
