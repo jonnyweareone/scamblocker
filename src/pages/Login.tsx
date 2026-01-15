@@ -30,22 +30,29 @@ export default function Login() {
     // Check if already logged in
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session) {
-        // Check if user has consumer org
-        const { data: membership } = await supabase
+        // Check what type of org user has
+        const { data: memberships } = await supabase
           .from("org_memberships")
           .select(`
             org_id,
+            role,
             orgs!inner(id, name, slug, type)
           `)
-          .eq("user_id", session.user.id)
-          .eq("orgs.type", "consumer")
-          .maybeSingle();
+          .eq("user_id", session.user.id);
 
-        if (membership) {
-          // Has consumer org, go to dashboard
+        // Check if user is SONIQ master admin
+        const soniqMembership = memberships?.find((m: any) => m.orgs.type === 'soniq');
+        if (soniqMembership) {
+          // Redirect to SoniqMail admin
+          window.location.href = "https://app.soniq.com/admin";
+          return;
+        }
+
+        // Check if user has consumer org
+        const consumerMembership = memberships?.find((m: any) => m.orgs.type === 'consumer');
+        if (consumerMembership) {
           navigate("/dashboard");
         } else {
-          // No consumer org, needs quick setup
           navigate("/quick-setup");
         }
       }
@@ -71,23 +78,32 @@ export default function Login() {
 
       if (error) throw error;
 
-      // Check if user has consumer org
-      const { data: membership } = await supabase
+      // Check what type of org user has
+      const { data: memberships } = await supabase
         .from("org_memberships")
         .select(`
           org_id,
+          role,
           orgs!inner(id, name, slug, type)
         `)
-        .eq("user_id", data.user.id)
-        .eq("orgs.type", "consumer")
-        .maybeSingle();
+        .eq("user_id", data.user.id);
 
-      if (membership) {
-        // Has consumer org, go to dashboard
+      // Check if user is SONIQ master admin
+      const soniqMembership = memberships?.find((m: any) => m.orgs.type === 'soniq');
+      if (soniqMembership) {
+        toast.success("Welcome back, SONIQ Admin!");
+        // Redirect to SoniqMail admin (or show error for now)
+        window.location.href = "https://app.soniq.com/admin"; // Replace with actual admin URL
+        return;
+      }
+
+      // Check if user has consumer org
+      const consumerMembership = memberships?.find((m: any) => m.orgs.type === 'consumer');
+      if (consumerMembership) {
         toast.success("Welcome back!");
         navigate("/dashboard");
       } else {
-        // SONIQ user without consumer org - needs quick setup
+        // User authenticated but no consumer org - needs quick setup
         toast.success("Welcome! Let's set up your ScamBlocker protection");
         navigate("/quick-setup");
       }
