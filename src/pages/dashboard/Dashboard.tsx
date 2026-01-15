@@ -69,10 +69,9 @@ export default function Dashboard() {
       }
 
       if (!membership) {
-        console.warn("No consumer org found for user. User may need to complete ScamBlocker signup.");
-        // Don't navigate to login if user is authenticated but has no consumer org
-        // They may have signed up via SoniqMail and need to complete ScamBlocker setup
-        setLoading(false);
+        console.warn("No consumer org found for user. Redirecting to quick setup.");
+        // User is authenticated but has no consumer org - redirect to quick setup
+        navigate("/quick-setup");
         return;
       }
 
@@ -125,31 +124,7 @@ export default function Dashboard() {
   }
 
   if (!consumer) {
-    return (
-      <ConsumerPortalLayout userName={userName}>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <Card className="max-w-md">
-            <CardHeader>
-              <CardTitle>Welcome to ScamBlocker</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-muted-foreground">
-                You're signed in, but you haven't set up your ScamBlocker protection yet.
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Complete the signup process to start protecting your phone from scammers.
-              </p>
-              <Button 
-                onClick={() => navigate("/signup")}
-                className="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600"
-              >
-                Complete ScamBlocker Setup
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </ConsumerPortalLayout>
-    );
+    return null; // Will redirect to quick-setup
   }
 
   // Show guided setup on first login

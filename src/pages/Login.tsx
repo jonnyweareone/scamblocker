@@ -28,10 +28,26 @@ export default function Login() {
 
   useEffect(() => {
     // Check if already logged in
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session) {
-        // User is authenticated, let dashboard handle whether they have consumer org
-        navigate("/dashboard");
+        // Check if user has consumer org
+        const { data: membership } = await supabase
+          .from("org_memberships")
+          .select(`
+            org_id,
+            orgs!inner(id, name, slug, type)
+          `)
+          .eq("user_id", session.user.id)
+          .eq("orgs.type", "consumer")
+          .maybeSingle();
+
+        if (membership) {
+          // Has consumer org, go to dashboard
+          navigate("/dashboard");
+        } else {
+          // No consumer org, needs quick setup
+          navigate("/quick-setup");
+        }
       }
       setCheckingSession(false);
     });
@@ -48,15 +64,33 @@ export default function Login() {
     setLoading(true);
     
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) throw error;
 
-      toast.success("Welcome back!");
-      navigate("/dashboard");
+      // Check if user has consumer org
+      const { data: membership } = await supabase
+        .from("org_memberships")
+        .select(`
+          org_id,
+          orgs!inner(id, name, slug, type)
+        `)
+        .eq("user_id", data.user.id)
+        .eq("orgs.type", "consumer")
+        .maybeSingle();
+
+      if (membership) {
+        // Has consumer org, go to dashboard
+        toast.success("Welcome back!");
+        navigate("/dashboard");
+      } else {
+        // SONIQ user without consumer org - needs quick setup
+        toast.success("Welcome! Let's set up your ScamBlocker protection");
+        navigate("/quick-setup");
+      }
     } catch (error: any) {
       toast.error(error.message || "Failed to sign in");
     } finally {

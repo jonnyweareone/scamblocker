@@ -16,6 +16,7 @@ import Login from './pages/Login'
 // Dashboard pages
 import Dashboard from './pages/dashboard/Dashboard'
 import SSO from './pages/SSO'
+import QuickSetup from './pages/quick-setup/QuickSetup'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -47,6 +48,7 @@ function App() {
             {/* Protected Dashboard */}
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/dashboard/*" element={<Dashboard />} />
+            <Route path="/quick-setup" element={<QuickSetup />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>
