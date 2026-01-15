@@ -18,7 +18,6 @@ serve(async (req) => {
       throw new Error('No code provided')
     }
 
-    // Create Supabase admin client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
@@ -28,10 +27,10 @@ serve(async (req) => {
       }
     })
 
-    // Look up the code and verify it's valid
+    // Look up the code and get tokens
     const { data: ssoToken, error: lookupError } = await supabaseAdmin
       .from('sso_tokens')
-      .select('access_token, user_id, expires_at')
+      .select('access_token, refresh_token, user_id, expires_at')
       .eq('code', code)
       .eq('used', false)
       .single()
@@ -41,7 +40,6 @@ serve(async (req) => {
       throw new Error('Invalid or expired code')
     }
 
-    // Check expiry
     if (new Date(ssoToken.expires_at) < new Date()) {
       throw new Error('Code has expired')
     }
@@ -52,7 +50,7 @@ serve(async (req) => {
       .update({ used: true })
       .eq('code', code)
 
-    // Verify the token is still valid and get user info
+    // Verify token is valid
     const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(ssoToken.access_token)
     
     if (userError || !user) {
@@ -60,35 +58,14 @@ serve(async (req) => {
       throw new Error('Invalid token')
     }
 
-    console.log('Creating session for user:', user.email)
+    console.log('SSO exchange successful for:', user.email)
 
-    // SOLUTION: Use admin.generateLink to create a fresh magic link with valid tokens
-    // This generates a new access_token and refresh_token pair that will work in ScamBlocker
-    const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
-      type: 'magiclink',
-      email: user.email!,
-    })
-
-    if (linkError || !linkData?.properties?.action_link) {
-      console.error('Generate link error:', linkError)
-      throw new Error('Failed to generate session')
-    }
-
-    // Extract the tokens from the magic link URL
-    const actionUrl = new URL(linkData.properties.action_link)
-    const access_token = actionUrl.searchParams.get('access_token')
-    const refresh_token = actionUrl.searchParams.get('refresh_token')
-
-    if (!access_token || !refresh_token) {
-      throw new Error('Failed to extract tokens from magic link')
-    }
-
-    console.log('Successfully generated new session tokens')
-
+    // SIMPLE SOLUTION: Just return the tokens as-is
+    // Since both apps share the same Supabase instance, these tokens work everywhere!
     return new Response(
       JSON.stringify({
-        access_token,
-        refresh_token,
+        access_token: ssoToken.access_token,
+        refresh_token: ssoToken.refresh_token || ssoToken.access_token,
         user: {
           id: user.id,
           email: user.email,

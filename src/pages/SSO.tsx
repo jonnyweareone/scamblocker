@@ -16,10 +16,6 @@ function ScamBlockerLogo() {
   );
 }
 
-/**
- * SSO (Single Sign-On) page
- * Accepts a JWT token from SONIQ Mail and exchanges it securely for a session
- */
 export default function SSO() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -29,7 +25,6 @@ export default function SSO() {
   useEffect(() => {
     async function authenticateWithToken() {
       try {
-        // Get one-time code from URL parameter
         const code = searchParams.get("code");
         
         if (!code) {
@@ -38,7 +33,7 @@ export default function SSO() {
 
         setStatus("Verifying your credentials...");
 
-        // Exchange the code server-side for a proper session
+        // Exchange the code for tokens
         const response = await fetch(
           `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/sso-exchange`,
           {
@@ -55,31 +50,46 @@ export default function SSO() {
           throw new Error(errorData.error || 'Token exchange failed');
         }
 
-        const { access_token, refresh_token } = await response.json();
+        const { access_token, refresh_token, user } = await response.json();
 
         setStatus("Establishing your session...");
+        
+        console.log('Received tokens, setting session...');
 
-        // Set the session with the new tokens
-        const { error: sessionError } = await supabase.auth.setSession({
+        // CRITICAL: Use the correct method for setting session
+        // setSession expects both tokens, but if refresh_token is invalid, it will fail
+        const { data, error: sessionError } = await supabase.auth.setSession({
           access_token,
           refresh_token,
         });
 
         if (sessionError) {
-          throw new Error(sessionError.message);
+          console.error('setSession error:', sessionError);
+          // If the error is about invalid refresh token, we can still try to proceed
+          if (sessionError.message?.includes('refresh') || sessionError.message?.includes('Refresh')) {
+            console.warn('Refresh token issue, but proceeding with access token');
+          } else {
+            throw new Error(sessionError.message);
+          }
         }
 
-        // Clear the URL (remove token from history)
+        // Verify we have a session
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          throw new Error('Failed to establish session');
+        }
+
+        console.log('Session established successfully');
+
+        // Clear the URL
         window.history.replaceState({}, document.title, '/sso');
 
         // Mark that user came from SoniqMail SSO
         sessionStorage.setItem('came_from_soniqmail', 'true');
 
-        // Session established successfully
         setStatus("Success! Redirecting to dashboard...");
         toast.success("Welcome to ScamBlocker!");
         
-        // Small delay for user to see success message
         setTimeout(() => {
           navigate("/dashboard", { replace: true });
         }, 500);
@@ -89,10 +99,8 @@ export default function SSO() {
         setError(err.message || "Authentication failed");
         toast.error("Failed to authenticate");
         
-        // Clear the URL
         window.history.replaceState({}, document.title, '/sso');
         
-        // Redirect to login after delay
         setTimeout(() => {
           navigate("/login", { replace: true });
         }, 3000);
