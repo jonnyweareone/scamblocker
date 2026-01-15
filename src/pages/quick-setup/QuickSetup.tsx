@@ -79,15 +79,33 @@ export default function QuickSetup() {
   const loadAvailableNumbers = async () => {
     setLoadingNumbers(true);
     try {
-      const response = await fetch("/api/available-numbers");
-      const result = await response.json();
+      // Query Supabase directly for available numbers
+      const { data, error } = await supabase
+        .from('number_inventory')
+        .select('id, e164, prefix, area_name, monthly_cost_gbp')
+        .eq('status', 'available')
+        .is('allocated_to_org', null)
+        .order('prefix')
+        .order('e164');
       
-      if (result.error) {
+      if (error) {
+        console.error("Error loading numbers:", error);
         toast.error("Failed to load available numbers");
         return;
       }
       
-      setAvailableNumbers(result.numbers || []);
+      // Group by prefix/area
+      const grouped = (data || []).reduce((acc, num) => {
+        const key = num.area_name || num.prefix;
+        if (!acc[key]) acc[key] = [];
+        acc[key].push(num);
+        return acc;
+      }, {} as Record<string, typeof data>);
+      
+      setAvailableNumbers(Object.entries(grouped).map(([area, numbers]) => ({
+        area,
+        numbers
+      })));
     } catch (error) {
       console.error("Error loading numbers:", error);
       toast.error("Failed to load available numbers");
