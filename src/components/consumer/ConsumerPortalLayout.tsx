@@ -1,8 +1,8 @@
-import { ReactNode } from "react";
+import { ReactNode, useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Shield, LogOut, HelpCircle } from "lucide-react";
+import { Shield, LogOut, HelpCircle, Mail } from "lucide-react";
 import { toast } from "sonner";
 
 interface ConsumerPortalLayoutProps {
@@ -12,11 +12,23 @@ interface ConsumerPortalLayoutProps {
 
 export function ConsumerPortalLayout({ children, userName }: ConsumerPortalLayoutProps) {
   const navigate = useNavigate();
+  const [cameFromSoniqMail, setCameFromSoniqMail] = useState(false);
+
+  useEffect(() => {
+    // Check if user came from SoniqMail SSO
+    const fromSoniqMail = sessionStorage.getItem('came_from_soniqmail') === 'true';
+    setCameFromSoniqMail(fromSoniqMail);
+  }, []);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     toast.success("Signed out successfully");
     navigate("/login");
+  };
+
+  const handleBackToMail = () => {
+    // Redirect back to SoniqMail
+    window.location.href = import.meta.env.VITE_SONIQMAIL_URL || 'https://soniqmail.com';
   };
 
   return (
@@ -33,6 +45,13 @@ export function ConsumerPortalLayout({ children, userName }: ConsumerPortalLayou
               <span className="text-sm text-muted-foreground hidden sm:inline">
                 {userName}
               </span>
+            )}
+            {cameFromSoniqMail && (
+              <Button variant="outline" size="sm" onClick={handleBackToMail}>
+                <Mail className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">Back to Mail</span>
+                <span className="sm:hidden">Mail</span>
+              </Button>
             )}
             <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex">
               <Link to="/guides">

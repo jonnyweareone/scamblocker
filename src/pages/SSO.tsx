@@ -72,6 +72,9 @@ export default function SSO() {
         // Clear the URL (remove token from history)
         window.history.replaceState({}, document.title, '/sso');
 
+        // Mark that user came from SoniqMail SSO
+        sessionStorage.setItem('came_from_soniqmail', 'true');
+
         // Session established successfully
         setStatus("Success! Redirecting to dashboard...");
         toast.success("Welcome to ScamBlocker!");

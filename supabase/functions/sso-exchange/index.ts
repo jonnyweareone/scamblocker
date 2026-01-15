@@ -7,7 +7,6 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
-  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
@@ -29,15 +28,16 @@ serve(async (req) => {
       }
     })
 
-    // Look up the code and get the access token
+    // Look up the code and get BOTH tokens
     const { data: ssoToken, error: lookupError } = await supabaseAdmin
       .from('sso_tokens')
-      .select('*')
+      .select('access_token, refresh_token, user_id, expires_at')
       .eq('code', code)
       .eq('used', false)
       .single()
 
     if (lookupError || !ssoToken) {
+      console.error('Token lookup error:', lookupError)
       throw new Error('Invalid or expired code')
     }
 
@@ -52,36 +52,22 @@ serve(async (req) => {
       .update({ used: true })
       .eq('code', code)
 
-    // Verify the token and get user
+    // Verify the token is still valid
     const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(ssoToken.access_token)
     
     if (userError || !user) {
+      console.error('User verification error:', userError)
       throw new Error('Invalid token')
     }
 
-    // Generate new session tokens for the user
-    const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.generateLink({
-      type: 'magiclink',
-      email: user.email!,
-    })
+    console.log('Returning tokens for user:', user.email)
 
-    if (sessionError || !sessionData) {
-      throw new Error('Failed to generate session')
-    }
-
-    // Extract the tokens from the magic link
-    const url = new URL(sessionData.properties.action_link)
-    const access_token = url.searchParams.get('access_token')
-    const refresh_token = url.searchParams.get('refresh_token')
-
-    if (!access_token || !refresh_token) {
-      throw new Error('Failed to extract tokens')
-    }
-
+    // Since both apps share the same Supabase instance, we can just return
+    // the original tokens! They're already valid for ScamBlocker
     return new Response(
       JSON.stringify({
-        access_token,
-        refresh_token,
+        access_token: ssoToken.access_token,
+        refresh_token: ssoToken.refresh_token,
         user: {
           id: user.id,
           email: user.email,
