@@ -3,7 +3,7 @@ import { SEO } from "@/components/SEO";
 import { StructuredData } from "@/components/StructuredData";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowRight, Phone, Zap, Shield, CheckCircle2, X } from "lucide-react";
+import { ArrowRight, Phone, CheckCircle2, X } from "lucide-react";
 
 export default function WhatIsDigitalLandline() {
   return (

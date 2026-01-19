@@ -3,7 +3,7 @@ import { SEO } from "@/components/SEO";
 import { StructuredData } from "@/components/StructuredData";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowRight, AlertTriangle, Shield, Heart } from "lucide-react";
+import { ArrowRight, Shield, Heart } from "lucide-react";
 
 export default function WhyElderlyHideScams() {
   return (

@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
 import { StructuredData } from "@/components/StructuredData";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Phone, Heart } from "lucide-react";
+import { ArrowRight, Phone } from "lucide-react";
 
 export default function WhyElderlyAnswerEverCall() {
   return (

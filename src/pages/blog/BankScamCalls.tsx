@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
 import { StructuredData } from "@/components/StructuredData";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, AlertTriangle, Shield, CreditCard } from "lucide-react";
+import { ArrowRight, AlertTriangle, Shield } from "lucide-react";
 
 export default function BankScamCalls() {
   return (
