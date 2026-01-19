@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { Button } from "@/components/ui/button";
@@ -10,11 +10,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { 
   ArrowLeft, ArrowRight, CheckCircle2, 
   CreditCard, PhoneOff, Globe, PhoneIncoming,
-  Bell, Eye, Mail, Heart
+  Bell, Eye, Mail, Heart, Loader2
 } from "lucide-react";
 import { toast } from "sonner";
-import { ScamBlockerPayment } from "@/components/consumer/ScamBlockerPayment";
 import { supabase } from "@/integrations/supabase/client";
+
+// Lazy load the payment component (only loads when needed)
+const ScamBlockerPayment = lazy(() => 
+  import("@/components/consumer/ScamBlockerPayment").then(module => ({
+    default: module.ScamBlockerPayment
+  }))
+);
 
 // Types
 type ProtectingType = "mum" | "dad" | "mum_and_dad" | "grandparent" | "partner" | "myself" | "other" | null;
@@ -746,7 +752,17 @@ export default function Signup() {
         </>
       ) : (
         <>
-          <ScamBlockerPayment orderData={getOrderData()} onSuccess={() => navigate("/dashboard")} onError={(error) => toast.error(error)} />
+          <Suspense fallback={
+            <div className="flex flex-col items-center justify-center p-12 space-y-4 bg-gradient-to-br from-violet-50 to-fuchsia-50 rounded-xl border-2 border-violet-200">
+              <Loader2 className="h-12 w-12 animate-spin text-violet-600" />
+              <div className="text-center">
+                <p className="text-lg font-semibold text-slate-900 mb-1">Loading Secure Payment</p>
+                <p className="text-sm text-slate-600">Powered by Stripe • PCI Compliant</p>
+              </div>
+            </div>
+          }>
+            <ScamBlockerPayment orderData={getOrderData()} onSuccess={() => navigate("/dashboard")} onError={(error) => toast.error(error)} />
+          </Suspense>
           <div className="flex justify-start pt-2">
             <Button variant="ghost" onClick={() => setShowPayment(false)}><ArrowLeft className="mr-2 h-4 w-4" /> Back to Review</Button>
           </div>

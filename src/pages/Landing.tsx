@@ -75,14 +75,14 @@ function DemoCallHistory() {
 
   const getCallIcon = (type: string) => {
     if (type === "blocked") return <PhoneMissed className="h-4 w-4 text-red-500" />;
-    if (type === "whitelisted") return <PhoneIncoming className="h-4 w-4 text-green-500" />;
-    return <PhoneIncoming className="h-4 w-4 text-amber-500" />;
+    if (type === "whitelisted") return <PhoneIncoming className="h-4 w-4 text-green-700" />;
+    return <PhoneIncoming className="h-4 w-4 text-amber-600" />;
   };
 
   const getStatusColor = (type: string) => {
     if (type === "blocked") return "border-l-4 border-l-red-500 bg-red-50/50";
-    if (type === "whitelisted") return "border-l-4 border-l-green-500 bg-green-50/50";
-    return "border-l-4 border-l-amber-500 bg-amber-50/50";
+    if (type === "whitelisted") return "border-l-4 border-l-green-700 bg-green-50/50";
+    return "border-l-4 border-l-amber-600 bg-amber-50/50";
   };
 
   return (
@@ -92,7 +92,7 @@ function DemoCallHistory() {
           <Activity className="h-4 w-4" />
           <span className="font-medium text-sm">Call Safety History</span>
         </div>
-        <Badge variant="outline" className="bg-green-500/20 text-green-400 border-green-500/30 text-xs">
+        <Badge variant="outline" className="bg-green-700/20 text-green-700 border-green-700/30 text-xs">
           Live
         </Badge>
       </div>
@@ -107,7 +107,7 @@ function DemoCallHistory() {
           <div className="text-[10px] text-slate-500">Blocked</div>
         </div>
         <div>
-          <div className="text-lg font-bold text-green-600">142</div>
+          <div className="text-lg font-bold text-green-700">142</div>
           <div className="text-[10px] text-slate-500">Family</div>
         </div>
         <div>
@@ -198,6 +198,7 @@ function DemoSettingsPanel() {
               checked={settings[item.key as keyof typeof settings]}
               onCheckedChange={(checked) => setSettings(prev => ({ ...prev, [item.key]: checked }))}
               className="data-[state=checked]:bg-violet-600"
+              aria-label={`Toggle ${item.label}`}
             />
           </div>
         ))}
@@ -225,6 +226,11 @@ export default function ScamBlockerLanding() {
         url="https://scamblocker.co.uk"
       />
       <StructuredData type="homepage" />
+      
+      {/* Preconnect to Google Fonts for performance */}
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      
       {/* Custom Styles */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -285,8 +291,10 @@ export default function ScamBlockerLanding() {
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="relative hero-gradient overflow-hidden">
+      {/* Main Content */}
+      <main>
+        {/* Hero Section */}
+        <section className="relative hero-gradient overflow-hidden">
         <div className="absolute inset-0 overflow-hidden opacity-20">
           <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover">
             <source src={MEDIA.heroVideo} type="video/mp4" />
@@ -1155,6 +1163,7 @@ export default function ScamBlockerLanding() {
           </div>
         </div>
       </footer>
+      </main>
     </div>
   );
 }

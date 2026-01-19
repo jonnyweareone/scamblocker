@@ -130,7 +130,7 @@ export default function WhyElderlyHideScams() {
 
             <div className="bg-green-50 p-6 rounded-lg my-6">
               <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                <Shield className="h-6 w-6 text-green-600" />
+                <Shield className="h-6 w-6 text-green-700" />
                 What TO Say:
               </h3>
               <ul className="space-y-3 list-none pl-0">

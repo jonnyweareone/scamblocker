@@ -99,20 +99,20 @@ export default function BlogHMRCScams() {
             
             <div className="bg-green-50 p-6 rounded-lg my-6">
               <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                <Shield className="h-6 w-6 text-green-600" />
+                <Shield className="h-6 w-6 text-green-700" />
                 Your Action Plan
               </h3>
               <ol className="space-y-3 list-none pl-0">
                 <li className="flex items-start gap-2">
-                  <span className="text-green-600 font-bold">1.</span>
+                  <span className="text-green-700 font-bold">1.</span>
                   <span><strong>Hang up immediately</strong> - Don't engage, don't press any buttons</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-green-600 font-bold">2.</span>
+                  <span className="text-green-700 font-bold">2.</span>
                   <span><strong>Report it</strong> - Forward details to HMRC at phishing@hmrc.gov.uk</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-green-600 font-bold">3.</span>
+                  <span className="text-green-700 font-bold">3.</span>
                   <span><strong>Protect yourself</strong> - Consider AI call screening to block future scam calls</span>
                 </li>
               </ol>
