@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
-  Phone, Shield, Zap, CheckCircle2, ArrowRight, Clock,
-  PhoneCall, PhoneOff, Users, Heart, Brain, Lock
+  Shield, Zap, ArrowRight, Clock,
+  PhoneCall, Users, Brain
 } from "lucide-react";
 
 export default function DigitalLandline() {
