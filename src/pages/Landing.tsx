@@ -57,7 +57,7 @@ function ScamBlockerLogo({ className = "", size = "default" }: { className?: str
           </linearGradient>
         </defs>
       </svg>
-      <span className="text-[8px] text-slate-400 -ml-1 mt-1">™</span>
+      <span className="text-[8px] text-slate-600 -ml-1 mt-1">™</span>
     </div>
   );
 }
@@ -75,7 +75,7 @@ function DemoCallHistory() {
   const getCallIcon = (type: string) => {
     if (type === "blocked") return <PhoneMissed className="h-4 w-4 text-red-500" />;
     if (type === "whitelisted") return <PhoneIncoming className="h-4 w-4 text-green-700" />;
-    return <PhoneIncoming className="h-4 w-4 text-amber-600" />;
+    return <PhoneIncoming className="h-4 w-4 text-amber-700" />;
   };
 
   const getStatusColor = (type: string) => {
@@ -110,7 +110,7 @@ function DemoCallHistory() {
           <div className="text-[10px] text-slate-500">Family</div>
         </div>
         <div>
-          <div className="text-lg font-bold text-amber-600">16</div>
+          <div className="text-lg font-bold text-amber-700">16</div>
           <div className="text-[10px] text-slate-500">Screened</div>
         </div>
       </div>
@@ -346,7 +346,7 @@ export default function ScamBlockerLanding() {
               </a>
             </div>
             
-            <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-slate-400">
+            <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-slate-600">
               <span className="flex items-center gap-1.5">
                 <span className="text-lg">🇬🇧</span> 100% UK-Based
               </span>
@@ -383,15 +383,15 @@ export default function ScamBlockerLanding() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
             <div>
               <p className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent mb-2">47%</p>
-              <p className="text-slate-400">of all calls are scam attempts</p>
+              <p className="text-slate-300">of all calls are scam attempts</p>
             </div>
             <div>
               <p className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent mb-2">78%</p>
-              <p className="text-slate-400">target people over 65</p>
+              <p className="text-slate-300">target people over 65</p>
             </div>
             <div>
               <p className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent mb-2">£10,000</p>
-              <p className="text-slate-400">average loss per victim</p>
+              <p className="text-slate-300">average loss per victim</p>
             </div>
           </div>
         </div>
@@ -747,7 +747,7 @@ export default function ScamBlockerLanding() {
             ].map((layer) => (
               <Card key={layer.layer} className="card-hover border-0 shadow-lg">
                 <CardContent className="pt-6">
-                  <div className="text-xs font-bold text-slate-400 mb-3">LAYER {layer.layer}</div>
+                  <div className="text-xs font-bold text-slate-600 mb-3">LAYER {layer.layer}</div>
                   <div className={`h-14 w-14 rounded-2xl bg-gradient-to-br ${layer.gradient} flex items-center justify-center mb-4 shadow-lg`}>
                     <layer.icon className="h-7 w-7 text-white" />
                   </div>
@@ -884,7 +884,7 @@ export default function ScamBlockerLanding() {
                 <div key={bundle.name} className="bg-white border border-slate-200 rounded-lg p-4 text-center hover:border-violet-300 transition-colors">
                   <span className="text-2xl">{bundle.flag}</span>
                   <p className="font-medium text-slate-900 text-sm mt-1">{bundle.name}</p>
-                  <p className="text-violet-600 font-bold">{bundle.price}<span className="text-slate-400 font-normal">/mo</span></p>
+                  <p className="text-violet-600 font-bold">{bundle.price}<span className="text-slate-600 font-normal">/mo</span></p>
                   <p className="text-xs text-slate-500">{bundle.mins}</p>
                 </div>
               ))}
@@ -917,7 +917,7 @@ export default function ScamBlockerLanding() {
                   </div>
                   <p className="text-slate-300 mb-4">"{t.quote}"</p>
                   <p className="font-semibold">{t.author}</p>
-                  <p className="text-sm text-slate-400">{t.location}</p>
+                  <p className="text-sm text-slate-300">{t.location}</p>
                 </CardContent>
               </Card>
             ))}
@@ -1094,7 +1094,7 @@ export default function ScamBlockerLanding() {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 bg-slate-900 text-slate-400">
+      <footer className="py-12 bg-slate-900 text-slate-300">
         <div className="container px-4 md:px-6">
           {/* Email Protection Coming Soon */}
           <div className="max-w-xl mx-auto mb-12 p-6 rounded-xl bg-slate-800 border border-slate-700 text-center">
@@ -1103,7 +1103,7 @@ export default function ScamBlockerLanding() {
               <span className="font-semibold text-white">Email Protection</span>
               <Badge variant="outline" className="bg-violet-500/20 text-violet-300 border-violet-500/30 text-xs">Coming Soon</Badge>
             </div>
-            <p className="text-sm text-slate-400 mb-4">AI-powered scam detection for your inbox.</p>
+            <p className="text-sm text-slate-300 mb-4">AI-powered scam detection for your inbox.</p>
             <div className="flex gap-2 max-w-sm mx-auto">
               <Input
                 type="email"
