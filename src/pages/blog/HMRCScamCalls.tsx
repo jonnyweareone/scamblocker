@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { SEO } from "@/components/SEO";
 import { StructuredData } from "@/components/StructuredData";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, AlertTriangle, Shield } from "lucide-react";
 
@@ -33,6 +34,15 @@ export default function BlogHMRCScams() {
 
       <article className="py-12">
         <div className="container mx-auto px-4 max-w-4xl">
+          
+          {/* Breadcrumbs */}
+          <Breadcrumbs 
+            items={[
+              { label: "Home", href: "/" },
+              { label: "Blog", href: "/blog" },
+              { label: "HMRC Scam Calls", href: "/blog/hmrc-scam-calls" }
+            ]}
+          />
           
           <div className="bg-red-50 border-l-4 border-red-500 p-6 mb-8 rounded-r-lg">
             <div className="flex gap-3">
