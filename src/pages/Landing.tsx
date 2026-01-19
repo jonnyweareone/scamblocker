@@ -227,15 +227,20 @@ export default function ScamBlockerLanding() {
       />
       <StructuredData type="homepage" />
       
-      {/* Preconnect to Google Fonts for performance */}
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      
       {/* Custom Styles */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        /* Use system fonts on mobile for performance, custom fonts on desktop */
+        @media (min-width: 768px) {
+          @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+          .font-body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        }
         
-        .font-body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        @media (max-width: 767px) {
+          .font-body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 
+                         'Helvetica Neue', Arial, sans-serif;
+          }
+        }
         
         .gradient-text {
           background: linear-gradient(135deg, #7c3aed 0%, #db2777 100%);
@@ -299,7 +304,7 @@ export default function ScamBlockerLanding() {
           <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover">
             <source src={MEDIA.heroVideo} type="video/mp4" />
             <track 
-              kind="subtitles" 
+              kind="captions" 
               src={MEDIA.heroVideoSubtitles} 
               srcLang="en" 
               label="English"
