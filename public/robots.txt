@@ -1,0 +1,20 @@
+User-agent: *
+Allow: /
+
+# Main pages
+Allow: /
+Allow: /signup
+Allow: /login  
+Allow: /mobile
+Allow: /terms
+Allow: /privacy
+Allow: /complaints
+Allow: /rates
+
+# Disallow private areas
+Disallow: /dashboard
+Disallow: /quick-setup
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://scamblocker.co.uk/sitemap.xml
