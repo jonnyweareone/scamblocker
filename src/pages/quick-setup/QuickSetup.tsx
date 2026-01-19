@@ -6,9 +6,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ArrowLeft, ArrowRight, Shield, Loader2, CheckCircle2, Phone, Smartphone } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ArrowLeft, ArrowRight, Shield, Loader2, CheckCircle2, Phone, Smartphone, AlertTriangle, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { UK_AREA_CODES } from "@/lib/areaCodes";
 
 type ProtectionType = "landline" | "mobile" | "both" | null;
 type NumberChoice = "port" | "new" | null;
@@ -16,6 +19,7 @@ type NumberChoice = "port" | "new" | null;
 interface SetupData {
   protectionType: ProtectionType;
   numberChoice: NumberChoice;
+  selectedAreaCode: string;
   portNumber: string;
   portProvider: string;
   mobileNumber: string;
@@ -23,6 +27,12 @@ interface SetupData {
   shippingAddress2: string;
   shippingCity: string;
   shippingPostcode: string;
+}
+
+interface AreaAvailability {
+  available: boolean;
+  count: number;
+  sample_numbers: string[];
 }
 
 export default function QuickSetup() {
@@ -35,6 +45,7 @@ export default function QuickSetup() {
   const [data, setData] = useState<SetupData>({
     protectionType: null,
     numberChoice: null,
+    selectedAreaCode: "",
     portNumber: "",
     portProvider: "",
     mobileNumber: "",
@@ -47,6 +58,8 @@ export default function QuickSetup() {
   const [availableNumbers, setAvailableNumbers] = useState<any[]>([]);
   const [selectedNumberId, setSelectedNumberId] = useState<string>("");
   const [loadingNumbers, setLoadingNumbers] = useState(false);
+  const [areaAvailability, setAreaAvailability] = useState<AreaAvailability | null>(null);
+  const [checkingAvailability, setCheckingAvailability] = useState(false);
 
   useEffect(() => {
     loadUserData();
@@ -65,61 +78,70 @@ export default function QuickSetup() {
     // Check if they already have a consumer org
     const { data: membership } = await supabase
       .from("org_memberships")
-      .select("org_id")
+      .select("org_id, orgs!inner(type)")
       .eq("user_id", user.id)
       .eq("orgs.type", "consumer")
       .maybeSingle();
 
     if (membership) {
-      // Already has consumer org, go to dashboard
       navigate("/dashboard");
     }
   };
   
-  const loadAvailableNumbers = async () => {
+  const checkAreaCodeAvailability = async (areaCode: string) => {
+    setCheckingAvailability(true);
+    try {
+      const { data, error } = await supabase.rpc('check_area_code_availability', {
+        p_area_code: areaCode
+      });
+
+      if (error) throw error;
+      
+      const availability = data?.[0] as AreaAvailability;
+      setAreaAvailability(availability);
+      
+      // If available, load the numbers
+      if (availability?.available) {
+        await loadNumbersForArea(areaCode);
+      } else {
+        setAvailableNumbers([]);
+        setSelectedNumberId("");
+      }
+    } catch (error) {
+      console.error("Error checking availability:", error);
+      toast.error("Failed to check availability");
+    } finally {
+      setCheckingAvailability(false);
+    }
+  };
+  
+  const loadNumbersForArea = async (areaCode: string) => {
     setLoadingNumbers(true);
     try {
-      // Query Supabase directly for available numbers
       const { data, error } = await supabase
         .from('number_inventory')
         .select('id, e164, prefix, area_name, monthly_cost_gbp')
         .eq('status', 'available')
         .is('allocated_to_org', null)
-        .order('prefix')
-        .order('e164');
+        .ilike('prefix', `${areaCode}%`)
+        .order('e164')
+        .limit(10);
       
-      if (error) {
-        console.error("Error loading numbers:", error);
-        toast.error("Failed to load available numbers");
-        return;
-      }
-      
-      // Group by prefix/area
-      const grouped = (data || []).reduce((acc, num) => {
-        const key = num.area_name || num.prefix;
-        if (!acc[key]) acc[key] = [];
-        acc[key].push(num);
-        return acc;
-      }, {} as Record<string, typeof data>);
-      
-      setAvailableNumbers(Object.entries(grouped).map(([area, numbers]) => ({
-        area,
-        numbers
-      })));
+      if (error) throw error;
+      setAvailableNumbers(data || []);
     } catch (error) {
       console.error("Error loading numbers:", error);
-      toast.error("Failed to load available numbers");
+      toast.error("Failed to load numbers");
     } finally {
       setLoadingNumbers(false);
     }
   };
-  
-  // Load numbers when user selects "new number"
-  useEffect(() => {
-    if (data.numberChoice === "new" && availableNumbers.length === 0) {
-      loadAvailableNumbers();
-    }
-  }, [data.numberChoice]);
+
+  const handleAreaCodeChange = (areaCode: string) => {
+    setData({ ...data, selectedAreaCode: areaCode });
+    setSelectedNumberId("");
+    checkAreaCodeAvailability(areaCode);
+  };
 
   const handleComplete = async () => {
     setLoading(true);
@@ -139,12 +161,15 @@ export default function QuickSetup() {
         p_shipping_city: data.shippingCity || null,
         p_shipping_postcode: data.shippingPostcode || null,
         p_selected_number_id: selectedNumberId || null,
+        p_area_code_preference: data.selectedAreaCode || null,
+        p_porting_number: data.portNumber || null,
+        p_porting_provider: data.portProvider || null,
       });
 
       if (error) throw error;
       if (!result?.success) throw new Error(result?.error || "Failed to create account");
 
-      toast.success("ScamBlocker protection activated! 🛡️");
+      toast.success("ScamBlocker account created! Complete payment to activate. 🛡️");
       navigate("/dashboard");
     } catch (error: any) {
       console.error("Setup error:", error);
@@ -162,7 +187,6 @@ export default function QuickSetup() {
         </div>
         <CardTitle className="text-2xl">Welcome to ScamBlocker, {userName}!</CardTitle>
         <CardDescription>
-          As a SONIQ customer, you can add ScamBlocker protection using your existing account.
           Choose your protection type to get started.
         </CardDescription>
       </CardHeader>
@@ -231,12 +255,6 @@ export default function QuickSetup() {
           </div>
         </RadioGroup>
 
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <p className="text-sm text-blue-800">
-            <strong>SONIQ Customer Benefit:</strong> No setup fee! Your first month is included in your SONIQ subscription.
-          </p>
-        </div>
-
         <Button 
           onClick={() => setStep(2)}
           disabled={!data.protectionType}
@@ -254,7 +272,7 @@ export default function QuickSetup() {
       <CardHeader>
         <CardTitle>Protection Details</CardTitle>
         <CardDescription>
-          Help us set up your {data.protectionType} protection
+          Set up your {data.protectionType} protection
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -276,46 +294,82 @@ export default function QuickSetup() {
             </RadioGroup>
 
             {data.numberChoice === "new" && (
-              <div className="pl-6 space-y-3">
-                {loadingNumbers ? (
-                  <div className="text-sm text-muted-foreground">Loading available numbers...</div>
-                ) : availableNumbers.length > 0 ? (
-                  <div>
-                    <Label>Choose your new number</Label>
-                    <RadioGroup 
-                      value={selectedNumberId} 
-                      onValueChange={setSelectedNumberId}
-                      className="mt-2 space-y-2 max-h-64 overflow-y-auto"
-                    >
-                      {availableNumbers.map((num) => (
-                        <div key={num.id} className="flex items-center space-x-2">
-                          <RadioGroupItem value={num.id} id={num.id} />
-                          <Label htmlFor={num.id} className="flex-1 cursor-pointer">
-                            <span className="font-mono">{num.e164}</span>
-                            {num.area_name && (
-                              <span className="ml-2 text-sm text-muted-foreground">
-                                ({num.area_name})
-                              </span>
-                            )}
-                          </Label>
-                        </div>
+              <div className="pl-6 space-y-4">
+                <div>
+                  <Label>Select your preferred area</Label>
+                  <Select value={data.selectedAreaCode} onValueChange={handleAreaCodeChange}>
+                    <SelectTrigger className="mt-2">
+                      <SelectValue placeholder="Choose an area code" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {UK_AREA_CODES.map((area) => (
+                        <SelectItem key={area.code} value={area.code}>
+                          {area.name} ({area.code})
+                        </SelectItem>
                       ))}
-                    </RadioGroup>
-                  </div>
-                ) : (
-                  <div className="text-sm text-muted-foreground">
-                    No numbers available. Please contact support.
-                  </div>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {checkingAvailability && (
+                  <Alert>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <AlertDescription>Checking availability...</AlertDescription>
+                  </Alert>
+                )}
+
+                {areaAvailability && !checkingAvailability && (
+                  <>
+                    {areaAvailability.available ? (
+                      <div className="space-y-3">
+                        <Alert className="bg-green-50 border-green-200">
+                          <CheckCircle2 className="h-4 w-4 text-green-600" />
+                          <AlertDescription className="text-green-800">
+                            {areaAvailability.count} numbers available in this area!
+                          </AlertDescription>
+                        </Alert>
+
+                        {loadingNumbers ? (
+                          <div className="text-sm text-muted-foreground">Loading numbers...</div>
+                        ) : (
+                          <div>
+                            <Label>Choose your number</Label>
+                            <RadioGroup 
+                              value={selectedNumberId} 
+                              onValueChange={setSelectedNumberId}
+                              className="mt-2 space-y-2"
+                            >
+                              {availableNumbers.map((num) => (
+                                <div key={num.id} className="flex items-center space-x-2">
+                                  <RadioGroupItem value={num.id} id={num.id} />
+                                  <Label htmlFor={num.id} className="flex-1 cursor-pointer font-mono">
+                                    {num.e164}
+                                  </Label>
+                                </div>
+                              ))}
+                            </RadioGroup>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <Alert className="bg-blue-50 border-blue-200">
+                        <Clock className="h-4 w-4 text-blue-600" />
+                        <AlertDescription className="text-blue-800">
+                          No numbers currently available for this area. We'll allocate one within 24 hours after you activate.
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                  </>
                 )}
               </div>
             )}
 
             {data.numberChoice === "port" && (
-              <div className="grid gap-4 pl-6">
+              <div className="pl-6 space-y-3">
                 <div>
-                  <Label>Your current landline number</Label>
-                  <Input
-                    placeholder="01234 567890"
+                  <Label>Current phone number</Label>
+                  <Input 
+                    placeholder="01234 567890" 
                     value={data.portNumber}
                     onChange={(e) => setData({ ...data, portNumber: e.target.value })}
                     className="mt-1"
@@ -323,54 +377,79 @@ export default function QuickSetup() {
                 </div>
                 <div>
                   <Label>Current provider</Label>
-                  <Input
-                    placeholder="e.g. BT, Sky, Virgin"
+                  <Input 
+                    placeholder="BT, Sky, TalkTalk, etc." 
                     value={data.portProvider}
                     onChange={(e) => setData({ ...data, portProvider: e.target.value })}
                     className="mt-1"
                   />
                 </div>
+                <Alert className="bg-blue-50 border-blue-200">
+                  <AlertDescription className="text-blue-800 text-sm">
+                    Number porting is free and typically completes within 1 business day.
+                  </AlertDescription>
+                </Alert>
               </div>
             )}
-
-            <div>
-              <Label>Shipping address for phone adapter</Label>
-              <Input
-                placeholder="Address line 1"
-                value={data.shippingAddress1}
-                onChange={(e) => setData({ ...data, shippingAddress1: e.target.value })}
-                className="mt-1"
-              />
-              <Input
-                placeholder="City"
-                value={data.shippingCity}
-                onChange={(e) => setData({ ...data, shippingCity: e.target.value })}
-                className="mt-2"
-              />
-              <Input
-                placeholder="Postcode"
-                value={data.shippingPostcode}
-                onChange={(e) => setData({ ...data, shippingPostcode: e.target.value })}
-                className="mt-2"
-              />
-            </div>
           </div>
         )}
 
         {(data.protectionType === "mobile" || data.protectionType === "both") && (
-          <div className="space-y-4">
+          <div className="space-y-3">
             <h3 className="font-semibold">Mobile Setup</h3>
             <div>
               <Label>Your mobile number</Label>
-              <Input
-                placeholder="07700 900123"
+              <Input 
+                type="tel"
+                placeholder="07XXX XXXXXX" 
                 value={data.mobileNumber}
                 onChange={(e) => setData({ ...data, mobileNumber: e.target.value })}
                 className="mt-1"
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Screened calls will be forwarded to this number
+                Calls will be forwarded to this number after AI screening
               </p>
+            </div>
+          </div>
+        )}
+
+        {(data.protectionType === "landline" || data.protectionType === "both") && (
+          <div className="space-y-3">
+            <h3 className="font-semibold">Shipping Address</h3>
+            <p className="text-sm text-muted-foreground">For your phone adapter delivery</p>
+            <div>
+              <Label>Address Line 1</Label>
+              <Input 
+                value={data.shippingAddress1}
+                onChange={(e) => setData({ ...data, shippingAddress1: e.target.value })}
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label>Address Line 2 (optional)</Label>
+              <Input 
+                value={data.shippingAddress2}
+                onChange={(e) => setData({ ...data, shippingAddress2: e.target.value })}
+                className="mt-1"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>City</Label>
+                <Input 
+                  value={data.shippingCity}
+                  onChange={(e) => setData({ ...data, shippingCity: e.target.value })}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label>Postcode</Label>
+                <Input 
+                  value={data.shippingPostcode}
+                  onChange={(e) => setData({ ...data, shippingPostcode: e.target.value })}
+                  className="mt-1"
+                />
+              </div>
             </div>
           </div>
         )}
@@ -380,10 +459,7 @@ export default function QuickSetup() {
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
           </Button>
-          <Button 
-            onClick={() => setStep(3)}
-            className="bg-gradient-to-r from-violet-600 to-fuchsia-600"
-          >
+          <Button onClick={() => setStep(3)}>
             Continue
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
@@ -392,73 +468,103 @@ export default function QuickSetup() {
     </Card>
   );
 
-  const renderConfirmation = () => (
-    <Card className="max-w-2xl mx-auto">
-      <CardHeader className="text-center">
-        <CheckCircle2 className="h-16 w-16 text-green-500 mx-auto mb-4" />
-        <CardTitle className="text-2xl">Ready to Activate!</CardTitle>
-        <CardDescription>
-          Review your ScamBlocker protection setup
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Protection Type:</span>
-            <span className="font-medium capitalize">{data.protectionType}</span>
-          </div>
-          {data.protectionType === "landline" && (
+  const renderConfirmation = () => {
+    const areaInfo = UK_AREA_CODES.find(a => a.code === data.selectedAreaCode);
+    
+    return (
+      <Card className="max-w-2xl mx-auto">
+        <CardHeader className="text-center">
+          <CheckCircle2 className="h-16 w-16 text-green-500 mx-auto mb-4" />
+          <CardTitle className="text-2xl">Ready to Create Your Account!</CardTitle>
+          <CardDescription>
+            Review your ScamBlocker setup
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="bg-gray-50 rounded-lg p-4 space-y-3">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Monthly Cost:</span>
-              <span className="font-medium">£14.99</span>
+              <span className="text-muted-foreground">Protection Type:</span>
+              <span className="font-medium capitalize">{data.protectionType}</span>
             </div>
-          )}
-          {data.protectionType === "mobile" && (
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Monthly Cost:</span>
-              <span className="font-medium">£9.99</span>
-            </div>
-          )}
-          {data.protectionType === "both" && (
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Monthly Cost:</span>
-              <span className="font-medium">£21.99 (Save £2.99!)</span>
-            </div>
-          )}
-        </div>
-
-        <div className="bg-violet-50 border border-violet-200 rounded-lg p-4">
-          <p className="text-sm text-violet-800">
-            ✨ <strong>SONIQ Perk:</strong> First month included in your subscription!
-          </p>
-        </div>
-
-        <div className="flex justify-between pt-4">
-          <Button variant="ghost" onClick={() => setStep(2)}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </Button>
-          <Button 
-            onClick={handleComplete}
-            disabled={loading}
-            className="bg-gradient-to-r from-violet-600 to-fuchsia-600"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Activating...
-              </>
-            ) : (
-              <>
-                <Shield className="mr-2 h-4 w-4" />
-                Activate Protection
-              </>
+            
+            {data.numberChoice === "new" && data.selectedAreaCode && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Number Area:</span>
+                <span className="font-medium">{areaInfo?.name} ({data.selectedAreaCode})</span>
+              </div>
             )}
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
+            
+            {selectedNumberId && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Selected Number:</span>
+                <span className="font-medium font-mono">
+                  {availableNumbers.find(n => n.id === selectedNumberId)?.e164}
+                </span>
+              </div>
+            )}
+            
+            {data.numberChoice === "port" && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Porting Number:</span>
+                <span className="font-medium">{data.portNumber}</span>
+              </div>
+            )}
+
+            {data.protectionType === "landline" && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Monthly Cost:</span>
+                <span className="font-medium">£14.99</span>
+              </div>
+            )}
+            {data.protectionType === "mobile" && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Monthly Cost:</span>
+                <span className="font-medium">£9.99</span>
+              </div>
+            )}
+            {data.protectionType === "both" && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Monthly Cost:</span>
+                <span className="font-medium">£21.99</span>
+              </div>
+            )}
+          </div>
+
+          <Alert className="bg-blue-50 border-blue-200">
+            <AlertTriangle className="h-4 w-4 text-blue-600" />
+            <AlertDescription className="text-blue-800">
+              <strong>Next Step:</strong> Complete payment setup in your dashboard to activate protection.
+              {!selectedNumberId && data.selectedAreaCode && " Your number will be allocated within 24 hours."}
+            </AlertDescription>
+          </Alert>
+
+          <div className="flex justify-between pt-4">
+            <Button variant="ghost" onClick={() => setStep(2)}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back
+            </Button>
+            <Button 
+              onClick={handleComplete}
+              disabled={loading}
+              className="bg-gradient-to-r from-violet-600 to-fuchsia-600"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Creating Account...
+                </>
+              ) : (
+                <>
+                  <Shield className="mr-2 h-4 w-4" />
+                  Create Account
+                </>
+              )}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50 py-12">
