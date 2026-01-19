@@ -266,8 +266,9 @@ export default function ScamBlockerLanding() {
           <nav className="hidden md:flex items-center gap-8">
             <a href="#demo" className="text-slate-600 hover:text-violet-600 transition-colors font-medium">Try Demo</a>
             <a href="#how-it-works" className="text-slate-600 hover:text-violet-600 transition-colors font-medium">How It Works</a>
+            <Link to="/digital-landline" className="text-slate-600 hover:text-violet-600 transition-colors font-medium">Digital Landline</Link>
             <a href="#pricing" className="text-slate-600 hover:text-violet-600 transition-colors font-medium">Pricing</a>
-            <a href="#faq" className="text-slate-600 hover:text-violet-600 transition-colors font-medium">FAQ</a>
+            <Link to="/blog" className="text-slate-600 hover:text-violet-600 transition-colors font-medium">Blog</Link>
           </nav>
           
           <div className="flex items-center gap-3">
@@ -977,6 +978,91 @@ export default function ScamBlockerLanding() {
         </div>
       </section>
 
+      {/* Resources Section */}
+      <section className="py-16 md:py-20 bg-slate-50">
+        <div className="container px-4 md:px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <Badge className="mb-4">Resources</Badge>
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+                Learn How to Protect Your Family
+              </h2>
+              <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+                Expert guides on phone scams, elderly protection, and digital landlines.
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-8 mb-8">
+              <Link to="/blog/hmrc-scam-calls" className="group">
+                <Card className="card-hover h-full">
+                  <CardContent className="pt-6">
+                    <div className="w-12 h-12 rounded-lg bg-red-100 flex items-center justify-center mb-4">
+                      <AlertTriangle className="h-6 w-6 text-red-600" />
+                    </div>
+                    <h3 className="text-xl font-bold mb-2 group-hover:text-violet-600 transition-colors">
+                      HMRC Scam Calls: How to Spot Them
+                    </h3>
+                    <p className="text-slate-600 text-sm mb-3">
+                      Learn the warning signs of fake tax calls and how to protect yourself from threats.
+                    </p>
+                    <span className="text-violet-600 text-sm font-medium flex items-center gap-1">
+                      Read guide <ArrowRight className="h-4 w-4" />
+                    </span>
+                  </CardContent>
+                </Card>
+              </Link>
+
+              <Link to="/blog/safe-phone-for-elderly" className="group">
+                <Card className="card-hover h-full">
+                  <CardContent className="pt-6">
+                    <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center mb-4">
+                      <Shield className="h-6 w-6 text-blue-600" />
+                    </div>
+                    <h3 className="text-xl font-bold mb-2 group-hover:text-violet-600 transition-colors">
+                      Safe Phone for Elderly Parents
+                    </h3>
+                    <p className="text-slate-600 text-sm mb-3">
+                      Complete guide to protecting elderly family from scams without taking away independence.
+                    </p>
+                    <span className="text-violet-600 text-sm font-medium flex items-center gap-1">
+                      Read guide <ArrowRight className="h-4 w-4" />
+                    </span>
+                  </CardContent>
+                </Card>
+              </Link>
+
+              <Link to="/blog/what-is-digital-landline" className="group">
+                <Card className="card-hover h-full">
+                  <CardContent className="pt-6">
+                    <div className="w-12 h-12 rounded-lg bg-violet-100 flex items-center justify-center mb-4">
+                      <PhoneCall className="h-6 w-6 text-violet-600" />
+                    </div>
+                    <h3 className="text-xl font-bold mb-2 group-hover:text-violet-600 transition-colors">
+                      What is a Digital Landline?
+                    </h3>
+                    <p className="text-slate-600 text-sm mb-3">
+                      Everything you need to know about digital landlines in 2026. How they work and why they're better.
+                    </p>
+                    <span className="text-violet-600 text-sm font-medium flex items-center gap-1">
+                      Read guide <ArrowRight className="h-4 w-4" />
+                    </span>
+                  </CardContent>
+                </Card>
+              </Link>
+            </div>
+
+            <div className="text-center">
+              <Link to="/blog">
+                <Button variant="outline" size="lg" className="text-violet-600 border-violet-600 hover:bg-violet-50">
+                  View All Guides
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Final CTA */}
       <section className="py-16 md:py-24 bg-gradient-to-br from-violet-600 via-fuchsia-600 to-pink-600 text-white">
         <div className="container px-4 md:px-6 text-center">
@@ -1029,15 +1115,16 @@ export default function ScamBlockerLanding() {
               <ul className="space-y-2 text-sm">
                 <li><a href="#demo" className="hover:text-violet-400">Try Demo</a></li>
                 <li><a href="#how-it-works" className="hover:text-violet-400">How It Works</a></li>
+                <li><Link to="/digital-landline" className="hover:text-violet-400">Digital Landline</Link></li>
                 <li><a href="#pricing" className="hover:text-violet-400">Pricing</a></li>
-                <li><a href="#faq" className="hover:text-violet-400">FAQ</a></li>
+                <li><Link to="/blog" className="hover:text-violet-400">Blog</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold text-white mb-4">Support</h4>
               <ul className="space-y-2 text-sm">
-                <li><Link to="/guides" className="hover:text-violet-400">Help Guides</Link></li>
-                <li><a href="#" className="hover:text-violet-400">Contact Us</a></li>
+                <li><Link to="/blog" className="hover:text-violet-400">Help Guides</Link></li>
+                <li><a href="mailto:support@scamblocker.co.uk" className="hover:text-violet-400">Contact Us</a></li>
               </ul>
             </div>
             <div>

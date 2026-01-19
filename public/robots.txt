@@ -1,20 +1,25 @@
 User-agent: *
 Allow: /
 
-# Main pages
-Allow: /
-Allow: /signup
-Allow: /login  
-Allow: /mobile
-Allow: /terms
-Allow: /privacy
-Allow: /complaints
-Allow: /rates
-
-# Disallow private areas
-Disallow: /dashboard
-Disallow: /quick-setup
-Disallow: /api/
-
 # Sitemap
 Sitemap: https://scamblocker.co.uk/sitemap.xml
+
+# Crawl delay (be nice to servers)
+Crawl-delay: 1
+
+# Disallow admin/dashboard areas
+Disallow: /dashboard/
+Disallow: /quick-setup/
+Disallow: /sso/
+
+# Allow everything else
+Allow: /
+Allow: /signup
+Allow: /login
+Allow: /rates
+Allow: /mobile
+Allow: /digital-landline
+Allow: /blog/
+Allow: /privacy
+Allow: /terms
+Allow: /complaints
