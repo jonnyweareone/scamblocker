@@ -22,9 +22,10 @@ import {
 import { RealtimeVoiceDemo } from "@/components/demo/RealtimeVoiceDemo";
 import { useState, useEffect } from "react";
 
-// Pexels media assets
+// Media assets
 const MEDIA = {
-  heroVideo: "https://videos.pexels.com/video-files/5708833/5708833-hd_1920_1080_25fps.mp4",
+  heroVideo: "/video/scamblocker-hero.mp4", // Your actual ScamBlocker video!
+  heroVideoSubtitles: "/video/scamblocker-subtitles.vtt",
   heroImage: "https://images.pexels.com/photos/3791664/pexels-photo-3791664.jpeg?auto=compress&cs=tinysrgb&w=1200",
   familyImage: "https://images.pexels.com/photos/6972784/pexels-photo-6972784.jpeg?auto=compress&cs=tinysrgb&w=1200",
 };
@@ -289,6 +290,13 @@ export default function ScamBlockerLanding() {
         <div className="absolute inset-0 overflow-hidden opacity-20">
           <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover">
             <source src={MEDIA.heroVideo} type="video/mp4" />
+            <track 
+              kind="subtitles" 
+              src={MEDIA.heroVideoSubtitles} 
+              srcLang="en" 
+              label="English"
+              default
+            />
           </video>
         </div>
         

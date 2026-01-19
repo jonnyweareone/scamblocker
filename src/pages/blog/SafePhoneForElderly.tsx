@@ -49,7 +49,6 @@ export default function SafePhoneForElderly() {
             <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
               Safe Phone for Older Adults: How to Protect Your Parents Without Taking Away Their Independence
             </h1>
-            </h1>
             <p className="text-xl text-slate-600">
               Why basic phones, call blocking, and advice don't work - and the one solution that does.
             </p>
