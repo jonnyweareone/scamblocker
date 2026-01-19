@@ -303,7 +303,6 @@ export default function ScamBlockerLanding() {
           <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover">
             <source src={MEDIA.heroVideo} type="video/mp4" />
           </video>
-          </video>
         </div>
         
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-transparent to-white" />
