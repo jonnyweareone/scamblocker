@@ -17,12 +17,29 @@ export default function ScamBlockerMobile() {
   return (
     <div className="min-h-screen bg-white">
       <Helmet>
-        <title>ScamBlocker Mobile - AI Scam Protection for Your Smartphone | UK</title>
-        <meta name="description" content="Add AI-powered scam protection to your mobile without changing provider. Get a new protected number, keep your real number private. £9.99/month, no setup fee, cancel anytime." />
-        <meta name="keywords" content="mobile scam blocker, smartphone scam protection, eSIM scam blocker, AI call screening mobile, phone scam protection UK" />
+        {/* Primary Meta Tags */}
+        <title>Mobile Scam Call Protection | AI-Powered Smartphone Security | ScamBlocker UK</title>
+        <meta name="title" content="ScamBlocker Mobile - AI Scam Protection for Your Smartphone | UK" />
+        <meta name="description" content="Add AI-powered scam protection to your mobile without changing provider. Get a new protected number, keep your real number private. £9.99/month, no setup fee, cancel anytime. Works with all UK networks." />
+        <meta name="keywords" content="mobile scam blocker, smartphone scam protection, eSIM scam blocker, AI call screening mobile, phone scam protection UK, mobile call blocker, android scam protection, iphone scam protection" />
         <link rel="canonical" href="https://scamblocker.co.uk/mobile" />
+        
+        {/* Open Graph */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://scamblocker.co.uk/mobile" />
         <meta property="og:title" content="ScamBlocker Mobile - Protect Your Smartphone from Scams" />
-        <meta property="og:description" content="AI-powered scam protection for mobiles. Keep your provider, add protection. £9.99/month." />
+        <meta property="og:description" content="AI-powered scam protection for mobiles. Keep your provider, add protection. £9.99/month. No setup fee." />
+        <meta property="og:image" content="https://scamblocker.co.uk/og-image.jpg" />
+        
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content="https://scamblocker.co.uk/mobile" />
+        <meta name="twitter:title" content="Mobile Scam Protection | ScamBlocker" />
+        <meta name="twitter:description" content="AI scam protection for smartphones. £9.99/month. Works with all UK networks." />
+        <meta name="twitter:image" content="https://scamblocker.co.uk/og-image.jpg" />
+        
+        {/* Additional SEO */}
+        <meta name="robots" content="index, follow" />
       </Helmet>
 
       {/* Header */}

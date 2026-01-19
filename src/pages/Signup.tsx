@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Helmet } from "react-helmet";
+import { SEO } from "@/components/SEO";
+import { StructuredData } from "@/components/StructuredData";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -778,8 +779,29 @@ export default function Signup() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-violet-50">
       <Helmet>
-        <title>Get Protected - ScamBlocker</title>
-        <meta name="description" content="Sign up for ScamBlocker and protect your family from phone scams." />
+        {/* Primary Meta Tags */}
+        <title>Sign Up for ScamBlocker | UK Scam Call Protection | Get Started</title>
+        <meta name="title" content="Sign Up for ScamBlocker | Protect Your Family from Phone Scams" />
+        <meta name="description" content="Get started with ScamBlocker in minutes. Choose your UK area code, protect your landline or mobile. £14.99/month, no contract. AI-powered scam detection. 14-day cooling-off period." />
+        <meta name="keywords" content="scam blocker signup, phone protection uk, call screening service, scam call protection signup, landline protection registration" />
+        <link rel="canonical" content="https://scamblocker.co.uk/signup" />
+        
+        {/* Open Graph */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://scamblocker.co.uk/signup" />
+        <meta property="og:title" content="Sign Up for ScamBlocker - Protect Your Family" />
+        <meta property="og:description" content="Start protecting your family from scam calls. AI screening, payment blocking, instant alerts. From £14.99/month." />
+        <meta property="og:image" content="https://scamblocker.co.uk/og-image.jpg" />
+        
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content="https://scamblocker.co.uk/signup" />
+        <meta name="twitter:title" content="Sign Up for ScamBlocker" />
+        <meta name="twitter:description" content="Protect your family from phone scams. AI screening & payment blocking. £14.99/month." />
+        <meta name="twitter:image" content="https://scamblocker.co.uk/og-image.jpg" />
+        
+        {/* Additional SEO */}
+        <meta name="robots" content="index, follow" />
       </Helmet>
 
       <header className="sticky top-0 z-50 border-b bg-white/95 backdrop-blur">

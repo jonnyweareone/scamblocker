@@ -13,6 +13,13 @@ import Complaints from './pages/Complaints'
 import Rates from './pages/Rates'
 import Login from './pages/Login'
 
+// New landing pages
+import DigitalLandline from './pages/DigitalLandline'
+
+// Blog pages
+import BlogIndex from './pages/blog/BlogIndex'
+import BlogHMRCScams from './pages/blog/HMRCScamCalls'
+
 // Dashboard pages
 import Dashboard from './pages/dashboard/Dashboard'
 import SSO from './pages/SSO'
@@ -44,6 +51,13 @@ function App() {
             <Route path="/rates" element={<Rates />} />
             <Route path="/login" element={<Login />} />
             <Route path="/sso" element={<SSO />} />
+            
+            {/* New landing pages */}
+            <Route path="/digital-landline" element={<DigitalLandline />} />
+            
+            {/* Blog pages */}
+            <Route path="/blog" element={<BlogIndex />} />
+            <Route path="/blog/hmrc-scam-calls" element={<BlogHMRCScams />} />
             
             {/* Protected Dashboard */}
             <Route path="/dashboard" element={<Dashboard />} />

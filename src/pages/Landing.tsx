@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { Helmet } from "react-helmet";
+import { SEO } from "@/components/SEO";
+import { StructuredData } from "@/components/StructuredData";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -216,19 +217,13 @@ export default function ScamBlockerLanding() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Helmet>
-        <title>ScamBlocker - AI-Powered Scam Call Protection for Landlines & Mobiles | UK</title>
-        <meta name="description" content="Stop scam calls before they reach your family. ScamBlocker uses real-time AI to block fraudsters on landlines and mobiles. Protect elderly parents from phone scams. From £14.99/month." />
-        <meta name="keywords" content="scam call blocker, phone scam protection, elderly scam protection, AI call screening, landline protection, mobile scam blocker, UK scam calls, fraud prevention" />
-        <link rel="canonical" href="https://scamblocker.co.uk" />
-        <meta property="og:title" content="ScamBlocker - Stop Scammers Before They Reach Mum" />
-        <meta property="og:description" content="Real-time AI protection against phone scams. Protect your family from fraudsters. 14-day cooling-off period. UK-based support." />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://scamblocker.co.uk" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="ScamBlocker - AI-Powered Scam Call Protection" />
-        <meta name="twitter:description" content="Stop scam calls before they reach your family. Real-time AI protection for landlines and mobiles." />
-      </Helmet>
+      <SEO 
+        title="ScamBlocker - AI-Powered Scam Call Protection UK | Digital Landline"
+        description="Protect your landline and mobile from scam calls with AI screening. Perfect for elderly protection. £14.99/month. Digital landline with UK area codes. Stop HMRC, bank & Amazon scams instantly."
+        keywords="scam blocker, digital landline, safe phone for elderly, prevent phone scams, call protection uk, ai call screening, elderly phone protection, virtual landline uk, phone scam blocker, senior phone service"
+        url="https://scamblocker.co.uk"
+      />
+      <StructuredData type="homepage" />
       {/* Custom Styles */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
