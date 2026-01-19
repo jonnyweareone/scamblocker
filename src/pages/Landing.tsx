@@ -1019,10 +1019,10 @@ export default function ScamBlockerLanding() {
                       <Shield className="h-6 w-6 text-blue-600" />
                     </div>
                     <h3 className="text-xl font-bold mb-2 group-hover:text-violet-600 transition-colors">
-                      Safe Phone for Elderly Parents
+                      Safe Phone for Older Parents
                     </h3>
                     <p className="text-slate-600 text-sm mb-3">
-                      Complete guide to protecting elderly family from scams without taking away independence.
+                      Complete guide to protecting older family members from scams without taking away independence.
                     </p>
                     <span className="text-violet-600 text-sm font-medium flex items-center gap-1">
                       Read guide <ArrowRight className="h-4 w-4" />

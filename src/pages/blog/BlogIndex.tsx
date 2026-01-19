@@ -17,10 +17,10 @@ const blogPosts = [
     image: "https://images.pexels.com/photos/6863332/pexels-photo-6863332.jpeg?auto=compress&cs=tinysrgb&w=800"
   },
   {
-    title: "Why Elderly Parents Hide Being Scammed",
+    title: "Why Older Parents Hide Being Scammed",
     slug: "why-elderly-hide-scams",
     excerpt: "The shame, fear, and isolation that stops victims from getting help - and what families can do about it.",
-    category: "Elderly Protection",
+    category: "Family Protection",
     readTime: "10 min read",
     searches: "High intent",
     image: "https://images.pexels.com/photos/4101143/pexels-photo-4101143.jpeg?auto=compress&cs=tinysrgb&w=800"
@@ -28,8 +28,8 @@ const blogPosts = [
   {
     title: "Why Your Mum Answers Every Call",
     slug: "why-elderly-answer-every-call",
-    excerpt: "Why elderly people can't ignore unknown numbers - and what actually works to protect them.",
-    category: "Elderly Protection",
+    excerpt: "Why older people can't ignore unknown numbers - and what actually works to protect them.",
+    category: "Family Protection",
     readTime: "9 min read",
     searches: "High intent",
     image: "https://images.pexels.com/photos/4057759/pexels-photo-4057759.jpeg?auto=compress&cs=tinysrgb&w=800"
@@ -54,10 +54,10 @@ const blogPosts = [
     image: "https://images.pexels.com/photos/4386431/pexels-photo-4386431.jpeg?auto=compress&cs=tinysrgb&w=800"
   },
   {
-    title: "Safe Phone for Elderly: Complete Protection Guide",
+    title: "Safe Phone for Older Adults: Complete Protection Guide",
     slug: "safe-phone-for-elderly",
-    excerpt: "How to protect elderly parents from scam calls without taking away their independence.",
-    category: "Elderly Protection",
+    excerpt: "How to protect older parents from scam calls without taking away their independence.",
+    category: "Family Protection",
     readTime: "11 min read",
     searches: "8,000/month",
     featured: true,
@@ -109,7 +109,7 @@ export default function BlogIndex() {
               Protect Your Family from <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-fuchsia-600">Phone Scams</span>
             </h1>
             <p className="text-xl text-slate-600">
-              Expert guides on HMRC scams, bank fraud, protecting elderly parents, and why AI call screening actually works.
+              Expert guides on HMRC scams, bank fraud, protecting older family members, and why AI call screening actually works.
             </p>
           </div>
         </div>

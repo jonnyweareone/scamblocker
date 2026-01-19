@@ -19,6 +19,11 @@ import DigitalLandline from './pages/DigitalLandline'
 // Blog pages
 import BlogIndex from './pages/blog/BlogIndex'
 import BlogHMRCScams from './pages/blog/HMRCScamCalls'
+import WhyElderlyHideScams from './pages/blog/WhyElderlyHideScams'
+import WhyElderlyAnswerEveryCall from './pages/blog/WhyElderlyAnswerEveryCall'
+import WhatIsDigitalLandline from './pages/blog/WhatIsDigitalLandline'
+import BankScamCalls from './pages/blog/BankScamCalls'
+import SafePhoneForElderly from './pages/blog/SafePhoneForElderly'
 
 // Dashboard pages
 import Dashboard from './pages/dashboard/Dashboard'
@@ -58,6 +63,11 @@ function App() {
             {/* Blog pages */}
             <Route path="/blog" element={<BlogIndex />} />
             <Route path="/blog/hmrc-scam-calls" element={<BlogHMRCScams />} />
+            <Route path="/blog/why-elderly-hide-scams" element={<WhyElderlyHideScams />} />
+            <Route path="/blog/why-elderly-answer-every-call" element={<WhyElderlyAnswerEveryCall />} />
+            <Route path="/blog/what-is-digital-landline" element={<WhatIsDigitalLandline />} />
+            <Route path="/blog/bank-scam-calls" element={<BankScamCalls />} />
+            <Route path="/blog/safe-phone-for-elderly" element={<SafePhoneForElderly />} />
             
             {/* Protected Dashboard */}
             <Route path="/dashboard" element={<Dashboard />} />
