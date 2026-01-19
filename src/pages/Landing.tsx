@@ -17,7 +17,7 @@ import {
   CheckCircle2, ArrowRight, X, Clock, 
   Zap, Brain, Eye, PhoneOff, ShieldAlert, Activity, Lock, Play,
   PhoneIncoming, PhoneMissed, Mic, Calendar,
-  Heart, Tv, FileText, Mail, Sparkles
+  Heart, Tv, FileText, Mail, Sparkles, AlertTriangle, PhoneCall
 } from "lucide-react";
 import { RealtimeVoiceDemo } from "@/components/demo/RealtimeVoiceDemo";
 import { useState, useEffect } from "react";

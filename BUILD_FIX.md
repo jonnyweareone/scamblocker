@@ -1,74 +1,60 @@
-# ScamBlocker Frontend Build Fix
+# 🔧 BUILD FIX - Missing Icon Imports
 
-## Problem
-Vercel build was failing with:
+## Error
 ```
-error TS2307: Cannot find module '@supabase/auth-helpers-nextjs'
-error TS2307: Cannot find module 'next/headers'
-error TS2307: Cannot find module 'next/server'
+src/pages/Landing.tsx(1000,24): error TS2304: Cannot find name 'AlertTriangle'.
+src/pages/Landing.tsx(1038,24): error TS2304: Cannot find name 'PhoneCall'.
 ```
 
-## Root Cause
-The scamblocker frontend is a **Vite/React app** but had a Next.js API route mixed in:
-- `/src/app/api/available-numbers/route.ts`
+## Fix Applied
 
-This API route was trying to use Next.js imports in a Vite project.
+**File:** `src/pages/Landing.tsx` (Line 14-18)
 
-## Solution ✅
-**Removed the API route** - it doesn't belong in the frontend!
-
-The `/api/available-numbers` endpoint should be in the **SONIQ v2.2 backend** at:
-- `/Users/davidsmith/Documents/GitHub/soniq-v22/src/app/api/available-numbers/route.ts`
-
-Or as a Supabase Edge Function.
-
-## Changes Made
-```bash
-# Removed the entire Next.js app directory
-rm -rf /Users/davidsmith/Documents/GitHub/scamblocker/src/app
-
-# Committed locally
-git commit -m "Remove Next.js API route - should be in soniq-v22 backend"
+**Change the import from:**
+```tsx
+import { 
+  Shield, Phone, Smartphone, ShieldCheck, Users, CreditCard, 
+  CheckCircle2, ArrowRight, X, Clock, 
+  Zap, Brain, Eye, PhoneOff, ShieldAlert, Activity, Lock, Play,
+  PhoneIncoming, PhoneMissed, Mic, Calendar,
+  Heart, Tv, FileText, Mail, Sparkles
+} from "lucide-react";
 ```
 
-## Next Steps
-1. **Push the commit** to trigger new Vercel build
-2. **Move the API endpoint** to soniq-v22 if needed
-3. **Update frontend** to call the correct API URL
+**To:**
+```tsx
+import { 
+  Shield, Phone, Smartphone, ShieldCheck, Users, CreditCard, 
+  CheckCircle2, ArrowRight, X, Clock, 
+  Zap, Brain, Eye, PhoneOff, ShieldAlert, Activity, Lock, Play,
+  PhoneIncoming, PhoneMissed, Mic, Calendar,
+  Heart, Tv, FileText, Mail, Sparkles, AlertTriangle, PhoneCall
+} from "lucide-react";
+```
+
+**Just add:** `, AlertTriangle, PhoneCall` to the end of the imports.
 
 ---
 
-## Architecture Reminder
+## Why This Happened
 
-```
-┌─────────────────────────────────────────┐
-│  ScamBlocker Frontend (Vite/React)      │
-│  Repo: scamblocker                      │
-│  Deploy: Vercel                         │
-│  - Landing pages                        │
-│  - Signup flow                          │
-│  - Settings UI                          │
-│  - Dashboard                            │
-└─────────────────────────────────────────┘
-              │
-              │ HTTP API calls
-              ▼
-┌─────────────────────────────────────────┐
-│  SONIQ v2.2 Backend (Next.js)           │
-│  Repo: soniq-v22                        │
-│  Deploy: Vercel                         │
-│  - API routes (/api/*)                  │
-│  - Supabase Edge Functions              │
-│  - Orchestrator webhook handler         │
-└─────────────────────────────────────────┘
-              │
-              │ Database
-              ▼
-┌─────────────────────────────────────────┐
-│  Supabase (dtosgubmmdqxbeirtbom)        │
-│  - Shared tables (both B2B + consumer)  │
-│  - phone_numbers, call_flows, etc.      │
-└─────────────────────────────────────────┘
+When I added the Resources section to Landing.tsx, I used:
+- `<AlertTriangle>` icon for HMRC blog card
+- `<PhoneCall>` icon for Digital Landline blog card
+
+But forgot to add them to the imports at the top!
+
+---
+
+## Quick Deploy
+
+```bash
+# Update just this one line in src/pages/Landing.tsx
+# Line 18: Add , AlertTriangle, PhoneCall
+
+git add src/pages/Landing.tsx
+git commit -m "Fix: Add missing icon imports (AlertTriangle, PhoneCall)"
+git push
 ```
 
-**Key Point:** ScamBlocker frontend is **just UI** - all logic is in soniq-v22 backend.
+**Build will succeed now! ✅**
