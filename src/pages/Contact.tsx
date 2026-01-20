@@ -1,5 +1,5 @@
 import { Mail, Phone, MapPin, Clock } from 'lucide-react';
-import SEO from '../components/SEO';
+import { SEO } from '../components/SEO';
 
 export default function Contact() {
   return (

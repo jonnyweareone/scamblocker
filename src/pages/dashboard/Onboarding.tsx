@@ -5,7 +5,7 @@ import { Loader2 } from 'lucide-react';
 
 export default function Onboarding() {
   const [loading, setLoading] = useState(true);
-  const [step, setStep] = useState(1);
+  const [step] = useState(1);
   const navigate = useNavigate();
 
   useEffect(() => {
