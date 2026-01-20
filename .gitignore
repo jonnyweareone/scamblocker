@@ -43,3 +43,10 @@ lerna-debug.log*
 
 # Archive documentation
 docs/archive/
+
+# Credentials and secrets (extra safety)
+**/IMPLEMENTATION*.md
+**/STALWART*.md
+**/BROWSER*.md
+*.credentials
+*.secrets

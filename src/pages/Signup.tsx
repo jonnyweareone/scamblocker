@@ -18,17 +18,25 @@ export default function Signup() {
     const password = formData.get('password') as string;
 
     try {
-      const { error } = await supabase.auth.signUp({
+      // Create Supabase auth user
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          data: { full_name: name },
+          data: { 
+            full_name: name,
+            brand: 'scamblocker' // Multi-brand support
+          },
           emailRedirectTo: `${window.location.origin}/dashboard/onboarding`,
         }
       });
 
       if (error) throw error;
 
+      // Note: Supabase will send its confirmation email automatically
+      // For custom branded emails, configure SMTP in Supabase Dashboard:
+      // Authentication → Email Templates → SMTP Settings
+      
       toast.success('Check your email to complete setup!');
       navigate('/check-email', { state: { email } });
       

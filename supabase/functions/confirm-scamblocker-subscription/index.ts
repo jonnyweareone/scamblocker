@@ -13,10 +13,14 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
 });
 
 // SMTP Configuration
-const SMTP_HOST = Deno.env.get("SMTP_HOST") || "mx.soniqlabs.co.uk";
+const SMTP_HOST = Deno.env.get("SMTP_HOST");
 const SMTP_PORT = 587;
-const SMTP_USER = Deno.env.get("SMTP_USER") || "smtp-scamblocker@scamblocker.co.uk";
-const SMTP_PASS = Deno.env.get("SMTP_PASSWORD") || "ScamSMTP2024!Service";
+const SMTP_USER = Deno.env.get("SMTP_USER");
+const SMTP_PASS = Deno.env.get("SMTP_PASSWORD");
+
+if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) {
+  console.error("Missing SMTP configuration in environment variables");
+}
 
 // Pricing configuration
 const PRICING = {
