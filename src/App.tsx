@@ -12,6 +12,7 @@ import Privacy from './pages/Privacy'
 import Complaints from './pages/Complaints'
 import Rates from './pages/Rates'
 import Login from './pages/Login'
+import Contact from './pages/Contact'
 
 // New landing pages
 import DigitalLandline from './pages/DigitalLandline'
@@ -55,6 +56,7 @@ function App() {
             <Route path="/complaints" element={<Complaints />} />
             <Route path="/rates" element={<Rates />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/contact" element={<Contact />} />
             <Route path="/sso" element={<SSO />} />
             
             {/* New landing pages */}
