@@ -31,7 +31,7 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' js.stripe.com https://www.googletagmanager.com https://soniqmail.co.uk; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src 'self' fonts.gstatic.com; img-src 'self' data: https:; media-src 'self' https://videos.pexels.com; connect-src 'self' https://api.stripe.com https://dtosgubmmdqxbeirtbom.supabase.co; frame-src js.stripe.com; object-src 'none'; base-uri 'self'; form-action 'self';"
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: js.stripe.com https://www.googletagmanager.com https://soniqmail.co.uk https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src 'self' fonts.gstatic.com; img-src 'self' data: https:; media-src 'self' https://videos.pexels.com; connect-src 'self' https://api.stripe.com https://dtosgubmmdqxbeirtbom.supabase.co; frame-src js.stripe.com; object-src 'none'; base-uri 'self'; form-action 'self';"
         }
       ]
     }
