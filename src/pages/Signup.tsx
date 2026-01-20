@@ -83,7 +83,7 @@ export default function Signup() {
           </form>
 
           <p className="text-xs text-slate-500 text-center mt-6">
-            No credit card required • 7-day free trial<br />Complete setup in your dashboard
+            No credit card required<br />Complete setup in your dashboard
           </p>
 
           <div className="mt-6 pt-6 border-t border-slate-200 text-center">
