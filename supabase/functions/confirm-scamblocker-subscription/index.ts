@@ -13,10 +13,10 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
 });
 
 // SMTP Configuration
-const SMTP_HOST = "mx.soniqlabs.co.uk";
+const SMTP_HOST = Deno.env.get("SMTP_HOST") || "mx.soniqlabs.co.uk";
 const SMTP_PORT = 587;
-const SMTP_USER = "support@scamblocker.co.uk";
-const SMTP_PASS = Deno.env.get("SMTP_PASSWORD") || "Sc4mBl0ck!2025";
+const SMTP_USER = Deno.env.get("SMTP_USER") || "smtp-scamblocker@scamblocker.co.uk";
+const SMTP_PASS = Deno.env.get("SMTP_PASSWORD") || "ScamSMTP2024!Service";
 
 // Pricing configuration
 const PRICING = {

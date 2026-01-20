@@ -6,6 +6,7 @@ import { AuthProvider } from './contexts/AuthContext'
 // Marketing pages
 import Landing from './pages/Landing'
 import Signup from './pages/Signup'
+import CheckEmail from './pages/CheckEmail'
 import Mobile from './pages/Mobile'
 import Terms from './pages/Terms'
 import Privacy from './pages/Privacy'
@@ -28,6 +29,7 @@ import SafePhoneForElderly from './pages/blog/SafePhoneForElderly'
 
 // Dashboard pages
 import Dashboard from './pages/dashboard/Dashboard'
+import Onboarding from './pages/dashboard/Onboarding'
 import SSO from './pages/SSO'
 import QuickSetup from './pages/quick-setup/QuickSetup'
 
@@ -50,6 +52,7 @@ function App() {
             {/* Marketing / Public pages */}
             <Route path="/" element={<Landing />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/check-email" element={<CheckEmail />} />
             <Route path="/mobile" element={<Mobile />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
@@ -73,6 +76,7 @@ function App() {
             
             {/* Protected Dashboard */}
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard/onboarding" element={<Onboarding />} />
             <Route path="/dashboard/*" element={<Dashboard />} />
             <Route path="/quick-setup" element={<QuickSetup />} />
           </Routes>
