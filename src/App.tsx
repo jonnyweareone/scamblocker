@@ -18,6 +18,7 @@ import Contact from './pages/Contact'
 // New landing pages
 import DigitalLandline from './pages/DigitalLandline'
 import StopScamCalls from './pages/ad-landing/StopScamCalls'
+import CompanyTechnical from './pages/about/CompanyTechnical'
 
 // Blog pages
 import BlogIndex from './pages/blog/BlogIndex'
@@ -66,6 +67,9 @@ function App() {
             {/* New landing pages */}
             <Route path="/digital-landline" element={<DigitalLandline />} />
             <Route path="/stop-scam-calls" element={<StopScamCalls />} />
+            
+            {/* About pages */}
+            <Route path="/about/company-technical" element={<CompanyTechnical />} />
             
             {/* Blog pages */}
             <Route path="/blog" element={<BlogIndex />} />
