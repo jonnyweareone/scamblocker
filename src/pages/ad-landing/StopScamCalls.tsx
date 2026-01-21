@@ -113,6 +113,7 @@ export default function StopScamCalls() {
     setIsSubmitting(true);
 
     try {
+      // Save to database
       const { error } = await supabase
         .from('ad_leads')
         .insert({
@@ -128,10 +129,26 @@ export default function StopScamCalls() {
 
       if (error) throw error;
 
+      // Send notification email via Edge Function
+      try {
+        await supabase.functions.invoke('send-lead-notification', {
+          body: {
+            protecting: formData.protecting,
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            wantsCall: formData.wantsCall,
+          }
+        });
+      } catch (emailError) {
+        // Don't fail the whole submission if email fails
+        console.error('Email notification error:', emailError);
+      }
+
       toast.success("Thank you! We'll be in touch soon.");
       
       setTimeout(() => {
-        window.location.href = "/check-email";
+        window.location.href = "/";
       }, 1500);
 
     } catch (error) {
