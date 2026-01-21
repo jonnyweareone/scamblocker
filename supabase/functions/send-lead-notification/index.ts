@@ -1,4 +1,5 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 const corsHeaders = {
@@ -12,7 +13,12 @@ serve(async (req) => {
   }
 
   try {
-    const { protecting, name, email, phone, wantsCall } = await req.json()
+    const { protecting, name, email, phone, wantsCall, leadId } = await req.json()
+
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    )
 
     const client = new SMTPClient({
       connection: {
@@ -58,12 +64,40 @@ serve(async (req) => {
 
     await client.close();
 
+    // Update lead with email sent status
+    if (leadId) {
+      await supabase
+        .from('ad_leads')
+        .update({
+          email_sent_at: new Date().toISOString(),
+          email_status: 'sent',
+          email_content: `Internal notification sent to jonny@weareone1.co.uk`
+        })
+        .eq('id', leadId)
+    }
+
     return new Response(
       JSON.stringify({ success: true }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
     console.error('Error:', error)
+    
+    // Mark as failed if we have leadId
+    const { leadId } = await req.json().catch(() => ({}))
+    if (leadId) {
+      const supabase = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      )
+      await supabase
+        .from('ad_leads')
+        .update({
+          email_status: 'failed',
+        })
+        .eq('id', leadId)
+    }
+
     return new Response(
       JSON.stringify({ success: false, error: error.message }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }

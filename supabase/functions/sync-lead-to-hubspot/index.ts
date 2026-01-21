@@ -1,0 +1,239 @@
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
+const HUBSPOT_CLIENT_ID = '8ed9a17d-3f33-4248-82cd-885cf8e913e4'
+const HUBSPOT_CLIENT_SECRET = '5e9d7fcb-6ad9-41df-b416-707939bc0018'
+
+async function getAccessToken(supabase: any) {
+  const { data, error } = await supabase
+    .from('hubspot_tokens')
+    .select('*')
+    .eq('id', 1)
+    .single()
+
+  if (error || !data) {
+    throw new Error('No HubSpot connection found')
+  }
+
+  const expiresAt = new Date(data.expires_at)
+  const now = new Date()
+
+  if (expiresAt > now) {
+    return data.access_token
+  }
+
+  // Refresh token
+  const refreshResponse = await fetch('https://api.hubapi.com/oauth/v1/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      grant_type: 'refresh_token',
+      client_id: HUBSPOT_CLIENT_ID,
+      client_secret: HUBSPOT_CLIENT_SECRET,
+      refresh_token: data.refresh_token,
+    }),
+  })
+
+  const newTokens = await refreshResponse.json()
+
+  await supabase
+    .from('hubspot_tokens')
+    .update({
+      access_token: newTokens.access_token,
+      refresh_token: newTokens.refresh_token,
+      expires_at: new Date(Date.now() + newTokens.expires_in * 1000).toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', 1)
+
+  return newTokens.access_token
+}
+
+serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
+
+  try {
+    const { protecting, name, email, phone, wantsCall, leadId } = await req.json()
+
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    )
+
+    const accessToken = await getAccessToken(supabase)
+
+    // Split name into first/last
+    const nameParts = name.trim().split(' ')
+    const firstname = nameParts[0] || ''
+    const lastname = nameParts.slice(1).join(' ') || ''
+
+    // Create contact in HubSpot
+    const hubspotContact = await fetch('https://api.hubapi.com/crm/v3/objects/contacts', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        properties: {
+          email: email,
+          firstname: firstname,
+          lastname: lastname,
+          phone: phone,
+          hs_analytics_source: 'Landing Page',
+          hs_lead_status: 'NEW',
+          protecting_who: protecting,
+          wants_call: wantsCall ? 'Yes' : 'No',
+        }
+      })
+    })
+
+    if (!hubspotContact.ok) {
+      const error = await hubspotContact.text()
+      throw new Error(`HubSpot error: ${error}`)
+    }
+
+    const contactData = await hubspotContact.json()
+    console.log(`Created HubSpot contact ${contactData.id}`)
+
+    // Send welcome email
+    const smtpClient = new SMTPClient({
+      connection: {
+        hostname: "mx.soniqlabs.co.uk",
+        port: 587,
+        tls: true,
+        auth: {
+          username: "support@scamblocker.co.uk",
+          password: "Sc4mBl0ck!2025",
+        },
+      },
+    });
+
+    const emailHtml = `
+      <!DOCTYPE html>
+      <html>
+      <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #1e293b; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="margin: 0;"><span style="color: #1e3a8a;">Scam</span><span style="color: #7c3aed;">Blocker</span></h1>
+        </div>
+        
+        <div style="background: white; border-radius: 12px; padding: 32px;">
+          <h2 style="color: #1e293b; margin: 0 0 16px 0;">Hi ${firstname},</h2>
+          
+          <p style="color: #475569; margin-bottom: 16px;">
+            Thanks for enquiring. One of our team will call you soon to discuss how ScamBlocker can protect ${protecting}.
+          </p>
+          
+          <div style="background: #f0f9ff; border-left: 4px solid #7c3aed; padding: 16px; margin: 24px 0;">
+            <p style="color: #1e293b; margin: 0; font-weight: 600;">📞 We'll call you from: 02392 404117</p>
+          </div>
+          
+          <div style="background: linear-gradient(to right, #7c3aed, #db2777); border-radius: 8px; padding: 20px; margin: 24px 0; text-align: center;">
+            <p style="color: white; margin: 0 0 8px 0; font-size: 14px;">Special Launch Offer</p>
+            <p style="color: white; margin: 0; font-size: 32px; font-weight: bold;">£14.99/month</p>
+            <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 14px;">Usually £24.99 • Complete landline replacement + unlimited UK calls</p>
+          </div>
+          
+          <h3 style="color: #1e293b; margin: 24px 0 12px 0; font-size: 18px;">How ScamBlocker Works:</h3>
+          <ul style="color: #475569; margin: 0 0 24px 0; padding-left: 20px;">
+            <li style="margin-bottom: 8px;">AI screens unknown callers before your phone rings</li>
+            <li style="margin-bottom: 8px;">Family and friends connect immediately</li>
+            <li style="margin-bottom: 8px;">Scammers get blocked automatically</li>
+            <li style="margin-bottom: 8px;">Payment Blocker™ prevents phone-based payments</li>
+            <li style="margin-bottom: 8px;">Keep your existing number (free porting)</li>
+          </ul>
+
+          <div style="background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 4px; padding: 20px; margin: 24px 0;">
+            <h4 style="color: #92400e; margin: 0 0 12px 0; font-size: 16px;">David's Story</h4>
+            <p style="color: #78350f; margin: 0 0 12px 0; font-style: italic;">
+              "I never gave them money — I just answered a question"
+            </p>
+            <p style="color: #78350f; margin: 0 0 12px 0; font-size: 14px;">
+              David didn't think he'd been scammed. The caller said they were from British Gas and just wanted to "verify" his account by confirming his email address.
+            </p>
+            <p style="color: #78350f; margin: 0 0 12px 0; font-size: 14px;">
+              It felt harmless. After all, an email address isn't a secret — is it?
+            </p>
+            <p style="color: #78350f; margin: 0 0 12px 0; font-size: 14px;">
+              But over the following weeks, David started receiving emails that looked legitimate. Billing updates. Security alerts. Account notices. One of those emails contained a link.
+            </p>
+            <p style="color: #78350f; margin: 0; font-size: 14px;">
+              That link gave scammers access to another part of his digital life — and eventually cost David thousands of pounds.
+            </p>
+            <div style="background: white; border-radius: 4px; padding: 12px; margin-top: 16px;">
+              <p style="color: #92400e; margin: 0; font-size: 13px; font-weight: 600;">
+                "I didn't give them money. I didn't give them a password. I just answered a question."
+              </p>
+            </div>
+            <p style="color: #78350f; margin: 16px 0 0 0; font-size: 13px; font-weight: 600;">
+              ScamBlocker would have stopped that first call. The phone call was the beginning. The email phishing was the follow-up.
+            </p>
+          </div>
+          
+          <div style="text-align: center; margin: 32px 0;">
+            <a href="https://scamblocker.co.uk/signup" style="display: inline-block; background: linear-gradient(to right, #7c3aed, #db2777); color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px;">
+              Get Protected Now →
+            </a>
+          </div>
+          
+          <div style="background: #f8fafc; border-radius: 8px; padding: 16px; margin-top: 24px;">
+            <p style="color: #64748b; margin: 0; font-size: 14px;">
+              <strong>Questions?</strong> Reply to this email or call us at <strong>02392 404117</strong>
+            </p>
+          </div>
+        </div>
+        
+        <div style="text-align: center; padding: 24px 0; color: #94a3b8; font-size: 12px;">
+          <p style="margin: 0 0 8px 0;">ScamBlocker by SONIQ Labs</p>
+          <p style="margin: 0;">We Are One 1 Limited • Portsmouth, UK</p>
+        </div>
+      </body>
+      </html>
+    `;
+
+    await smtpClient.send({
+      from: "ScamBlocker <support@scamblocker.co.uk>",
+      to: email,
+      subject: "We'll call you soon - here's how ScamBlocker protects you",
+      html: emailHtml,
+    });
+
+    await smtpClient.close();
+
+    // Update Supabase lead with email status
+    if (leadId) {
+      await supabase
+        .from('ad_leads')
+        .update({
+          email_sent_at: new Date().toISOString(),
+          email_status: 'sent',
+          email_content: 'Welcome email with David story sent',
+        })
+        .eq('id', leadId)
+    }
+
+    return new Response(
+      JSON.stringify({ 
+        success: true,
+        hubspotContactId: contactData.id 
+      }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
+
+  } catch (error) {
+    console.error('Error:', error)
+    return new Response(
+      JSON.stringify({ success: false, error: error.message }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+    )
+  }
+})
