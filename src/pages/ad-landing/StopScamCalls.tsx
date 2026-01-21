@@ -114,7 +114,7 @@ export default function StopScamCalls() {
 
     try {
       // Save to database
-      const { error } = await supabase
+      const { data: leadData, error } = await supabase
         .from('ad_leads')
         .insert({
           protecting: formData.protecting,
@@ -125,11 +125,29 @@ export default function StopScamCalls() {
           source: 'facebook_ad',
           landing_page: '/stop-scam-calls',
           created_at: new Date().toISOString(),
-        });
+        })
+        .select()
+        .single();
 
       if (error) throw error;
 
-      // Send notification email via Edge Function
+      // Sync to HubSpot and send welcome email
+      try {
+        await supabase.functions.invoke('sync-lead-to-hubspot', {
+          body: {
+            protecting: formData.protecting,
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            wantsCall: formData.wantsCall,
+            leadId: leadData?.id,
+          }
+        });
+      } catch (syncError) {
+        console.error('HubSpot sync error:', syncError);
+      }
+
+      // Send internal notification email
       try {
         await supabase.functions.invoke('send-lead-notification', {
           body: {
@@ -138,10 +156,10 @@ export default function StopScamCalls() {
             email: formData.email,
             phone: formData.phone,
             wantsCall: formData.wantsCall,
+            leadId: leadData?.id,
           }
         });
       } catch (emailError) {
-        // Don't fail the whole submission if email fails
         console.error('Email notification error:', emailError);
       }
 
