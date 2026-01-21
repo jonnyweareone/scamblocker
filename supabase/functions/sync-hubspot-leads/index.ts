@@ -1,4 +1,5 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 const corsHeaders = {
@@ -6,8 +7,64 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-const HUBSPOT_TOKEN = Deno.env.get('HUBSPOT_ACCESS_TOKEN') || ''
+const HUBSPOT_CLIENT_ID = '8ed9a17d-3f33-4248-82cd-885cf8e913e4'
+const HUBSPOT_CLIENT_SECRET = '5e9d7fcb-6ad9-41df-b416-707939bc0018'
 const HUBSPOT_BASE_URL = 'https://api.hubapi.com'
+
+async function getAccessToken(supabase: any) {
+  // Get stored tokens
+  const { data, error } = await supabase
+    .from('hubspot_tokens')
+    .select('*')
+    .eq('id', 1)
+    .single()
+
+  if (error || !data) {
+    throw new Error('No HubSpot connection found. Please connect HubSpot first.')
+  }
+
+  // Check if token is expired
+  const expiresAt = new Date(data.expires_at)
+  const now = new Date()
+
+  if (expiresAt > now) {
+    return data.access_token
+  }
+
+  // Refresh token
+  console.log('Token expired, refreshing...')
+  const refreshResponse = await fetch('https://api.hubapi.com/oauth/v1/token', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: new URLSearchParams({
+      grant_type: 'refresh_token',
+      client_id: HUBSPOT_CLIENT_ID,
+      client_secret: HUBSPOT_CLIENT_SECRET,
+      refresh_token: data.refresh_token,
+    }),
+  })
+
+  if (!refreshResponse.ok) {
+    throw new Error('Failed to refresh HubSpot token')
+  }
+
+  const newTokens = await refreshResponse.json()
+
+  // Update stored tokens
+  await supabase
+    .from('hubspot_tokens')
+    .update({
+      access_token: newTokens.access_token,
+      refresh_token: newTokens.refresh_token,
+      expires_at: new Date(Date.now() + newTokens.expires_in * 1000).toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', 1)
+
+  return newTokens.access_token
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -17,11 +74,18 @@ serve(async (req) => {
   try {
     console.log('Starting HubSpot sync...')
 
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    )
+
+    const accessToken = await getAccessToken(supabase)
+
     const contactsResponse = await fetch(
       `${HUBSPOT_BASE_URL}/crm/v3/objects/contacts?limit=100&properties=email,firstname,lastname,hs_analytics_source,createdate,hs_lead_status`,
       {
         headers: {
-          'Authorization': `Bearer ${HUBSPOT_TOKEN}`,
+          'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
         }
       }
@@ -37,11 +101,14 @@ serve(async (req) => {
 
     const facebookLeads = data.results.filter((contact: any) => {
       const source = contact.properties.hs_analytics_source || ''
-      return source.toLowerCase().includes('facebook') || 
-             source.toLowerCase().includes('paid social')
+      const status = contact.properties.hs_lead_status || ''
+      // Only send to leads who haven't been contacted yet
+      return (source.toLowerCase().includes('facebook') || 
+              source.toLowerCase().includes('paid social')) &&
+             status !== 'CONTACTED'
     })
 
-    console.log(`Found ${facebookLeads.length} Facebook leads`)
+    console.log(`Found ${facebookLeads.length} Facebook leads to email`)
 
     const smtpClient = new SMTPClient({
       connection: {
@@ -162,18 +229,18 @@ serve(async (req) => {
         console.log(`✓ Sent email to ${email}`)
         results.push({ email, status: 'sent', contactId: lead.id })
 
+        // Mark as contacted in HubSpot
         await fetch(
           `${HUBSPOT_BASE_URL}/crm/v3/objects/contacts/${lead.id}`,
           {
             method: 'PATCH',
             headers: {
-              'Authorization': `Bearer ${HUBSPOT_TOKEN}`,
+              'Authorization': `Bearer ${accessToken}`,
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
               properties: {
                 hs_lead_status: 'CONTACTED',
-                notes: `Welcome email sent via ScamBlocker system on ${new Date().toISOString()}`
               }
             })
           }
