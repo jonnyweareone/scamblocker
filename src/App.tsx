@@ -28,6 +28,7 @@ import WhyElderlyAnswerEveryCall from './pages/blog/WhyElderlyAnswerEveryCall'
 import WhatIsDigitalLandline from './pages/blog/WhatIsDigitalLandline'
 import BankScamCalls from './pages/blog/BankScamCalls'
 import SafePhoneForElderly from './pages/blog/SafePhoneForElderly'
+import WhyBlockingNumbersDoesntWork from './pages/blog/WhyBlockingNumbersDoesntWork'
 
 // Dashboard pages
 import Dashboard from './pages/dashboard/Dashboard'
@@ -79,6 +80,7 @@ function App() {
             <Route path="/blog/what-is-digital-landline" element={<WhatIsDigitalLandline />} />
             <Route path="/blog/bank-scam-calls" element={<BankScamCalls />} />
             <Route path="/blog/safe-phone-for-elderly" element={<SafePhoneForElderly />} />
+            <Route path="/blog/why-blocking-numbers-doesnt-work" element={<WhyBlockingNumbersDoesntWork />} />
             
             {/* Protected Dashboard */}
             <Route path="/dashboard" element={<Dashboard />} />

@@ -7,6 +7,16 @@ import { ArrowRight, Clock, TrendingUp } from "lucide-react";
 
 const blogPosts = [
   {
+    title: "Why Blocking Numbers Doesn't Work: The Technical Truth",
+    slug: "why-blocking-numbers-doesnt-work",
+    excerpt: "Number spoofing, VOIP, unlimited numbers - why blocking phone numbers to stop scammers is mathematically impossible. The technical deep dive.",
+    category: "Technology",
+    readTime: "12 min read",
+    searches: "High intent",
+    featured: true,
+    image: "https://images.pexels.com/photos/33999/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=800"
+  },
+  {
     title: "HMRC Scam Calls: How to Spot Fake Tax Threats",
     slug: "hmrc-scam-calls",
     excerpt: "Scammers pretending to be from HMRC have stolen over £43 million from UK victims. Learn the warning signs and how to protect yourself.",
